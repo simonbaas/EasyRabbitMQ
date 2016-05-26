@@ -20,7 +20,7 @@ namespace EasyRabbitMQ.Subscribe
         {
             if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
-            if (string.IsNullOrEmpty(routingKey)) throw new ArgumentNullException(nameof(routingKey));
+            if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
 
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
@@ -33,7 +33,7 @@ namespace EasyRabbitMQ.Subscribe
             string routingKey, ExchangeType exchangeType)
         {
             if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
-            if (string.IsNullOrEmpty(routingKey)) throw new ArgumentNullException(nameof(routingKey));
+            if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
 
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
