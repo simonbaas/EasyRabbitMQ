@@ -11,7 +11,8 @@ namespace EasyRabbitMQ.Subscribe
 
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
-            return new QueueSubscription(connectionAndChannel, serializer, queue);
+            var loggerFactory = subscriptionFactory.LoggerFactory;
+            return new QueueSubscription(connectionAndChannel, serializer, loggerFactory, queue);
         }
 
         public static ISubscription SubscribeExchange(this ISubscriptionFactory subscriptionFactory, string exchange,
@@ -23,7 +24,9 @@ namespace EasyRabbitMQ.Subscribe
 
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
-            return new ExchangeAndQueueSubscription(connectionAndChannel, serializer, exchange, queue, routingKey, exchangeType);
+            var loggerFactory = subscriptionFactory.LoggerFactory;
+            return new ExchangeAndQueueSubscription(connectionAndChannel, serializer, loggerFactory, 
+                exchange, queue, routingKey, exchangeType);
         }
 
         public static ISubscription SubscribeExchange(this ISubscriptionFactory subscriptionFactory, string exchange,
@@ -34,7 +37,8 @@ namespace EasyRabbitMQ.Subscribe
 
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
-            return new ExchangeSubscription(connectionAndChannel, serializer, exchange, routingKey, exchangeType);
+            var loggerFactory = subscriptionFactory.LoggerFactory;
+            return new ExchangeSubscription(connectionAndChannel, serializer, loggerFactory, exchange, routingKey, exchangeType);
         }
     }
 }

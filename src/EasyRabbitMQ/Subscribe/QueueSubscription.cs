@@ -1,4 +1,5 @@
 ﻿using EasyRabbitMQ.Infrastructure;
+using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
 
@@ -9,8 +10,8 @@ namespace EasyRabbitMQ.Subscribe
         private readonly string _queue;
         private IModel _channel;
 
-        public QueueSubscription(Channel channel, ISerializer serializer, string queue)
-            : base(channel, serializer)
+        public QueueSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, string queue)
+            : base(channel, serializer, loggerFactory)
         {
             _queue = queue;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using EasyRabbitMQ.Infrastructure;
+using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -14,10 +15,14 @@ namespace EasyRabbitMQ.Subscribe
         protected ISerializer Serializer { get; }
         protected EventingBasicConsumer Consumer { get; private set; }
 
-        protected AbstractSubscription(Channel channel, ISerializer serializer)
+        private readonly ILogger _logger;
+
+        protected AbstractSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory)
         {
             Channel = channel;
             Serializer = serializer;
+
+            _logger = loggerFactory.GetLogger<AbstractSubscription>();
         }
 
         protected abstract IModel GetChannel();
@@ -54,13 +59,12 @@ namespace EasyRabbitMQ.Subscribe
                 Received?.Invoke(message);
 
                 channel.BasicAck(ea.DeliveryTag, false);
-
+                
                 return;
             }
             catch (Exception ex)
             {
-                // TODO: Log!
-
+                _logger.Error($"Failed to process message received from queue '{GetQueue()}'", ex);
             }
 
             channel.BasicNack(ea.DeliveryTag, false, false);

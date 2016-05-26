@@ -49,6 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\ExchangeType.cs" />
+    <Compile Include="Logging\AbstractLoggerFactory.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Logging\ILoggerFactory.cs" />
+    <Compile Include="Logging\NullLogger.cs" />
+    <Compile Include="Logging\NullLoggerFactory.cs" />
     <Compile Include="Subscribe\AbstractSubscription.cs" />
     <Compile Include="Configuration\EasyRabbitMQConfigure.cs" />
     <Compile Include="Configuration\EasyRabbitMQConfigurer.cs" />

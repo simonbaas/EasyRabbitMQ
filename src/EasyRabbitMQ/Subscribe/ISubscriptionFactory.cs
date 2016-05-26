@@ -1,4 +1,5 @@
 using EasyRabbitMQ.Infrastructure;
+using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Serialization;
 
 namespace EasyRabbitMQ.Subscribe
@@ -7,5 +8,6 @@ namespace EasyRabbitMQ.Subscribe
     {
         IChannelFactory ChannelFactory { get; }
         ISerializer Serializer { get; }
+        ILoggerFactory LoggerFactory { get; }
     }
 }

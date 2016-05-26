@@ -1,4 +1,5 @@
 ﻿using EasyRabbitMQ.Infrastructure;
+using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
 using ExchangeType = EasyRabbitMQ.Infrastructure.ExchangeType;
@@ -10,9 +11,9 @@ namespace EasyRabbitMQ.Subscribe
         private string _queue;
         private IModel _channel;
 
-        public ExchangeSubscription(Channel channel, ISerializer serializer, string exchange, 
-            string routingKey, ExchangeType exchangeType) 
-            : base(channel, serializer)
+        public ExchangeSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
+            string exchange, string routingKey, ExchangeType exchangeType) 
+            : base(channel, serializer, loggerFactory)
         {
             Initialize(exchange, routingKey, exchangeType);
         }

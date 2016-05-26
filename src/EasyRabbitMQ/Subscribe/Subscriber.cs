@@ -15,7 +15,7 @@ namespace EasyRabbitMQ.Subscribe
 
         internal Subscriber(EasyRabbitMQConfigurer configurer)
         {
-            _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer);
+            _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer, configurer.LoggerFactory);
         }
 
         public IDisposable On(string queue, Action<dynamic> action)
