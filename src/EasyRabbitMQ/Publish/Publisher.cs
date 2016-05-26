@@ -24,36 +24,37 @@ namespace EasyRabbitMQ.Publish
 
         public void PublishQueue(string queue, dynamic message)
         {
-            if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            PublishMessageInternal("", queue, null, message);
+            PublishQueue(queue, null, message);
         }
 
         public void PublishQueue(string queue, MessageProperties messageProperties, dynamic message)
         {
             if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
-            if (messageProperties == null) throw new ArgumentNullException(nameof(messageProperties));
             if (message == null) throw new ArgumentNullException(nameof(message));
 
             PublishMessageInternal("", queue, messageProperties, message);
         }
 
+        public void PublishExchange(string exchange, dynamic message)
+        {
+            PublishExchange(exchange, "", null, message);
+        }
+
+        public void PublishExchange(string exchange, MessageProperties messageProperties, dynamic message)
+        {
+            PublishExchange(exchange, "", messageProperties, message);
+        }
+
         public void PublishExchange(string exchange, string routingKey, dynamic message)
         {
-            if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
-            if (string.IsNullOrWhiteSpace(routingKey)) throw new ArgumentNullException(nameof(routingKey));
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            PublishMessageInternal(exchange, routingKey, null, message);
+            PublishExchange(exchange, routingKey, null, message);
         }
 
         public void PublishExchange(string exchange, string routingKey, MessageProperties messageProperties,
             dynamic message)
         {
             if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
-            if (string.IsNullOrWhiteSpace(routingKey)) throw new ArgumentNullException(nameof(routingKey));
-            if (messageProperties == null) throw new ArgumentNullException(nameof(messageProperties));
+            if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
             if (message == null) throw new ArgumentNullException(nameof(message));
 
             PublishMessageInternal(exchange, routingKey, messageProperties, message);
