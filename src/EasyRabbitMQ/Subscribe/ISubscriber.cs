@@ -5,9 +5,11 @@ namespace EasyRabbitMQ.Subscribe
 {
     public interface ISubscriber : IDisposable
     {
-        IDisposable On(string queue, Action<dynamic> action);
-        IDisposable On(string exchange, string queue, string routingKey, ExchangeType exchangeType, Action<dynamic> action);
-        IDisposable On(string exchange, string routingKey, ExchangeType exchangeType, Action<dynamic> action);
+        IDisposable SubscribeQueue(string queue, Action<dynamic> action);
+        IDisposable SubscribeExchange(string exchange, Action<dynamic> action);
+        IDisposable SubscribeExchange(string exchange, string queue, Action<dynamic> action);
+        IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType, Action<dynamic> action);
+        IDisposable SubscribeExchange(string exchange, string routingKey, ExchangeType exchangeType, Action<dynamic> action);
 
         void Start();
     }

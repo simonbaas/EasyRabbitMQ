@@ -18,7 +18,7 @@ namespace EasyRabbitMQ.Subscribe
             _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer, configurer.LoggerFactory);
         }
 
-        public IDisposable On(string queue, Action<dynamic> action)
+        public IDisposable SubscribeQueue(string queue, Action<dynamic> action)
         {
             CheckStarted();
 
@@ -27,7 +27,17 @@ namespace EasyRabbitMQ.Subscribe
             return Subscribe(subscription, action);
         }
 
-        public IDisposable On(string exchange, string queue, string routingKey, ExchangeType exchangeType, Action<dynamic> action)
+        public IDisposable SubscribeExchange(string exchange, Action<dynamic> action)
+        {
+            return SubscribeExchange(exchange, "", ExchangeType.Direct, action);
+        }
+
+        public IDisposable SubscribeExchange(string exchange, string queue, Action<dynamic> action)
+        {
+            return SubscribeExchange(exchange, queue, "", ExchangeType.Direct, action);
+        }
+
+        public IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType, Action<dynamic> action)
         {
             CheckStarted();
 
@@ -38,7 +48,7 @@ namespace EasyRabbitMQ.Subscribe
             return Subscribe(subscription, action);
         }
 
-        public IDisposable On(string exchange, string routingKey, ExchangeType exchangeType, Action<dynamic> action)
+        public IDisposable SubscribeExchange(string exchange, string routingKey, ExchangeType exchangeType, Action<dynamic> action)
         {
             CheckStarted();
 
