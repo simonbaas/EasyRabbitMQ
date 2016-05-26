@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using EasyRabbitMQ.Configuration;
 using EasyRabbitMQ.Infrastructure;
@@ -9,7 +9,7 @@ namespace EasyRabbitMQ.Subscribe
     internal class Subscriber : ISubscriber
     {
         private readonly ISubscriptionFactory _subscriptionFactory;
-        private readonly List<ISubscription> _subscriptions = new List<ISubscription>();
+        private readonly ConcurrentDictionary<string, ISubscription> _subscriptions = new ConcurrentDictionary<string, ISubscription>();
         private readonly object _startLock = new object();
         private bool _isStarted;
 
@@ -22,7 +22,7 @@ namespace EasyRabbitMQ.Subscribe
         {
             CheckStarted();
 
-            var subscription = _subscriptionFactory.SubscribeQueue(queue);
+            var subscription =  _subscriptions.GetOrAdd(queue, _ => _subscriptionFactory.SubscribeQueue(queue));
 
             return Subscribe(subscription, action);
         }
@@ -31,7 +31,9 @@ namespace EasyRabbitMQ.Subscribe
         {
             CheckStarted();
 
-            var subscription = _subscriptionFactory.SubscribeExchange(exchange, queue, routingKey, exchangeType);
+            var key = $"{exchange}:{queue}:{routingKey}:{exchangeType}";
+            var subscription = _subscriptions.GetOrAdd(key, _ => 
+                _subscriptionFactory.SubscribeExchange(exchange, queue, routingKey, exchangeType));
 
             return Subscribe(subscription, action);
         }
@@ -40,7 +42,9 @@ namespace EasyRabbitMQ.Subscribe
         {
             CheckStarted();
 
-            var subscription = _subscriptionFactory.SubscribeExchange(exchange, routingKey, exchangeType);
+            var key = $"{exchange}:{routingKey}:{exchangeType}";
+            var subscription = _subscriptions.GetOrAdd(key, _ =>
+                _subscriptionFactory.SubscribeExchange(exchange, routingKey, exchangeType));
 
             return Subscribe(subscription, action);
         }
@@ -53,7 +57,7 @@ namespace EasyRabbitMQ.Subscribe
 
                 foreach (var subscription in _subscriptions)
                 {
-                    subscription.Start();
+                    subscription.Value.Start();
                 }
 
                 _isStarted = true;
@@ -68,7 +72,7 @@ namespace EasyRabbitMQ.Subscribe
             }
         }
 
-        private IDisposable Subscribe(ISubscription subscription, Action<dynamic> action)
+        private static IDisposable Subscribe(ISubscription subscription, Action<dynamic> action)
         {
             Action<dynamic> handler = message =>
             {
@@ -76,8 +80,6 @@ namespace EasyRabbitMQ.Subscribe
             };
 
             subscription.Received += handler;
-
-            _subscriptions.Add(subscription);
 
             return new DisposableAction(() => subscription.Received -= handler);
         }
@@ -99,7 +101,7 @@ namespace EasyRabbitMQ.Subscribe
                     {
                         foreach (var subscription in _subscriptions)
                         {
-                            subscription.Dispose();
+                            subscription.Value.Dispose();
                         }
 
                         _subscriptions.Clear();
