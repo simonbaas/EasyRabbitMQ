@@ -29,12 +29,12 @@ namespace EasyRabbitMQ.Subscribe
 
         public IDisposable SubscribeExchange(string exchange, Action<dynamic> action)
         {
-            return SubscribeExchange(exchange, "", ExchangeType.Direct, action);
+            return SubscribeExchange(exchange, "", ExchangeType.Fanout, action);
         }
 
         public IDisposable SubscribeExchange(string exchange, string queue, Action<dynamic> action)
         {
-            return SubscribeExchange(exchange, queue, "", ExchangeType.Direct, action);
+            return SubscribeExchange(exchange, queue, "", ExchangeType.Fanout, action);
         }
 
         public IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType, Action<dynamic> action)
