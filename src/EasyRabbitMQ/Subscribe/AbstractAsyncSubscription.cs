@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Serialization;
@@ -7,9 +9,9 @@ using RabbitMQ.Client.Events;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal abstract class AbstractSubscription : ISubscription
+    internal abstract class AbstractAsyncSubscription : ISubscription
     {
-        public event Action<dynamic> Received;
+        public event Func<dynamic, Task> Received;
 
         protected Channel Channel { get; }
         protected ISerializer Serializer { get; }
@@ -17,12 +19,12 @@ namespace EasyRabbitMQ.Subscribe
 
         private readonly ILogger _logger;
 
-        protected AbstractSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory)
+        protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory)
         {
             Channel = channel;
             Serializer = serializer;
 
-            _logger = loggerFactory.GetLogger<AbstractSubscription>();
+            _logger = loggerFactory.GetLogger<AbstractAsyncSubscription>();
         }
 
         protected abstract IModel GetChannel();
@@ -47,7 +49,7 @@ namespace EasyRabbitMQ.Subscribe
                 consumer: Consumer);
         }
 
-        protected virtual void ConsumerOnReceived(object sender, BasicDeliverEventArgs ea)
+        protected virtual async void ConsumerOnReceived(object sender, BasicDeliverEventArgs ea)
         {
             var consumer = (EventingBasicConsumer)sender;
             var channel = consumer.Model;
@@ -56,10 +58,10 @@ namespace EasyRabbitMQ.Subscribe
             {
                 dynamic message = Serializer.Deserialize(ea.Body);
 
-                Received?.Invoke(message);
+                await InvokeHandlersAsync(message);
 
                 channel.BasicAck(ea.DeliveryTag, false);
-                
+
                 return;
             }
             catch (Exception ex)
@@ -68,6 +70,18 @@ namespace EasyRabbitMQ.Subscribe
             }
 
             channel.BasicNack(ea.DeliveryTag, false, false);
+        }
+
+        private async Task InvokeHandlersAsync(dynamic message)
+        {
+            var handler = Received;
+            if (handler != null)
+            {
+                foreach (var @delegate in handler.GetInvocationList().Cast<Func<dynamic, Task>>())
+                {
+                    await @delegate(message);
+                }
+            }
         }
 
         private static void EnableFairDispatch(IModel channel)

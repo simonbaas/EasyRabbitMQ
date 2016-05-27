@@ -5,12 +5,12 @@ using RabbitMQ.Client;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal class QueueSubscription : AbstractSubscription
+    internal class QueueAsyncSubscription : AbstractAsyncSubscription
     {
         private readonly string _queue;
         private IModel _channel;
 
-        public QueueSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, string queue)
+        public QueueAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, string queue)
             : base(channel, serializer, loggerFactory)
         {
             _queue = queue;

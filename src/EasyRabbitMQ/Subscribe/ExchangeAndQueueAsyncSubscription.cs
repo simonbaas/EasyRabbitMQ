@@ -6,15 +6,17 @@ using ExchangeType = EasyRabbitMQ.Infrastructure.ExchangeType;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal class ExchangeSubscription : AbstractSubscription
+    internal class ExchangeAndQueueAsyncSubscription : AbstractAsyncSubscription
     {
-        private string _queue;
+        private readonly string _queue;
         private IModel _channel;
 
-        public ExchangeSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
-            string exchange, string routingKey, ExchangeType exchangeType) 
+        public ExchangeAndQueueAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
+            string exchange, string queue, string routingKey, ExchangeType exchangeType) 
             : base(channel, serializer, loggerFactory)
         {
+            _queue = queue;
+
             Initialize(exchange, routingKey, exchangeType);
         }
 
@@ -29,14 +31,12 @@ namespace EasyRabbitMQ.Subscribe
                 autoDelete: false,
                 arguments: null);
 
-            var queueOk = channel.QueueDeclare(
-                queue: "",
-                durable: false,
-                exclusive: true,
-                autoDelete: true,
+            channel.QueueDeclare(
+                queue: _queue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
                 arguments: null);
-
-            _queue = queueOk.QueueName;
 
             channel.QueueBind(
                 queue: _queue,

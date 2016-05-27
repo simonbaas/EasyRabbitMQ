@@ -54,7 +54,7 @@
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Logging\NullLoggerFactory.cs" />
-    <Compile Include="Subscribe\AbstractSubscription.cs" />
+    <Compile Include="Subscribe\AbstractAsyncSubscription.cs" />
     <Compile Include="Configuration\EasyRabbitMQConfigure.cs" />
     <Compile Include="Configuration\EasyRabbitMQConfigurer.cs" />
     <Compile Include="Infrastructure\ChannelFactory.cs" />
@@ -64,14 +64,14 @@
     <Compile Include="Infrastructure\IChannelFactory.cs" />
     <Compile Include="Infrastructure\IConnectionFactory.cs" />
     <Compile Include="Publish\IPublisher.cs" />
-    <Compile Include="Subscribe\ExchangeAndQueueSubscription.cs" />
-    <Compile Include="Subscribe\ExchangeSubscription.cs" />
+    <Compile Include="Subscribe\ExchangeAndQueueAsyncSubscription.cs" />
+    <Compile Include="Subscribe\ExchangeAsyncSubscription.cs" />
     <Compile Include="Subscribe\ISubscriber.cs" />
     <Compile Include="Subscribe\ISubscription.cs" />
     <Compile Include="Infrastructure\MessageProperties.cs" />
     <Compile Include="Publish\Publisher.cs" />
     <Compile Include="Subscribe\ISubscriptionFactory.cs" />
-    <Compile Include="Subscribe\QueueSubscription.cs" />
+    <Compile Include="Subscribe\QueueAsyncSubscription.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\TypeUnawareJsonSerializer.cs" />

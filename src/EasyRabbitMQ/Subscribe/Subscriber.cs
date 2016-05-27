@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading.Tasks;
 using EasyRabbitMQ.Configuration;
 using EasyRabbitMQ.Infrastructure;
 
@@ -18,7 +19,7 @@ namespace EasyRabbitMQ.Subscribe
             _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer, configurer.LoggerFactory);
         }
 
-        public IDisposable SubscribeQueue(string queue, Action<dynamic> action)
+        public IDisposable SubscribeQueue(string queue, Func<dynamic, Task> action)
         {
             CheckStarted();
 
@@ -27,17 +28,17 @@ namespace EasyRabbitMQ.Subscribe
             return Subscribe(subscription, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, Action<dynamic> action)
+        public IDisposable SubscribeExchange(string exchange, Func<dynamic, Task> action)
         {
             return SubscribeExchange(exchange, "", ExchangeType.Fanout, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, string queue, Action<dynamic> action)
+        public IDisposable SubscribeExchange(string exchange, string queue, Func<dynamic, Task> action)
         {
             return SubscribeExchange(exchange, queue, "", ExchangeType.Fanout, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType, Action<dynamic> action)
+        public IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType, Func<dynamic, Task> action)
         {
             CheckStarted();
 
@@ -48,7 +49,7 @@ namespace EasyRabbitMQ.Subscribe
             return Subscribe(subscription, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, string routingKey, ExchangeType exchangeType, Action<dynamic> action)
+        public IDisposable SubscribeExchange(string exchange, string routingKey, ExchangeType exchangeType, Func<dynamic, Task> action)
         {
             CheckStarted();
 
@@ -82,12 +83,9 @@ namespace EasyRabbitMQ.Subscribe
             }
         }
 
-        private static IDisposable Subscribe(ISubscription subscription, Action<dynamic> action)
+        private static IDisposable Subscribe(ISubscription subscription, Func<dynamic, Task> action)
         {
-            Action<dynamic> handler = message =>
-            {
-                action(message);
-            };
+            Func<dynamic, Task> handler = message => action(message);
 
             subscription.Received += handler;
 
