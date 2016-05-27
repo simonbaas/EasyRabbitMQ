@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\ExchangeType.cs" />
+    <Compile Include="Infrastructure\Message.cs" />
+    <Compile Include="Infrastructure\MessageFactory.cs" />
     <Compile Include="Logging\AbstractLoggerFactory.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />

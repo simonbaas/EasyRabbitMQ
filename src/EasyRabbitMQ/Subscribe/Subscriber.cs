@@ -19,7 +19,7 @@ namespace EasyRabbitMQ.Subscribe
             _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer, configurer.LoggerFactory);
         }
 
-        public IDisposable SubscribeQueue(string queue, Func<dynamic, Task> action)
+        public IDisposable SubscribeQueue(string queue, Func<Message, Task> action)
         {
             CheckStarted();
 
@@ -28,17 +28,17 @@ namespace EasyRabbitMQ.Subscribe
             return Subscribe(subscription, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, Func<dynamic, Task> action)
+        public IDisposable SubscribeExchange(string exchange, Func<Message, Task> action)
         {
             return SubscribeExchange(exchange, "", ExchangeType.Fanout, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, string queue, Func<dynamic, Task> action)
+        public IDisposable SubscribeExchange(string exchange, string queue, Func<Message, Task> action)
         {
             return SubscribeExchange(exchange, queue, "", ExchangeType.Fanout, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType, Func<dynamic, Task> action)
+        public IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType, Func<Message, Task> action)
         {
             CheckStarted();
 
@@ -49,7 +49,7 @@ namespace EasyRabbitMQ.Subscribe
             return Subscribe(subscription, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, string routingKey, ExchangeType exchangeType, Func<dynamic, Task> action)
+        public IDisposable SubscribeExchange(string exchange, string routingKey, ExchangeType exchangeType, Func<Message, Task> action)
         {
             CheckStarted();
 
@@ -83,7 +83,7 @@ namespace EasyRabbitMQ.Subscribe
             }
         }
 
-        private static IDisposable Subscribe(ISubscription subscription, Func<dynamic, Task> action)
+        private static IDisposable Subscribe(ISubscription subscription, Func<Message, Task> action)
         {
             Func<dynamic, Task> handler = message => action(message);
 

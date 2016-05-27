@@ -11,7 +11,7 @@ namespace EasyRabbitMQ.Subscribe
 {
     internal abstract class AbstractAsyncSubscription : ISubscription
     {
-        public event Func<dynamic, Task> Received;
+        public event Func<Message, Task> Received;
 
         protected Channel Channel { get; }
         protected ISerializer Serializer { get; }
@@ -56,7 +56,9 @@ namespace EasyRabbitMQ.Subscribe
 
             try
             {
-                dynamic message = Serializer.Deserialize(ea.Body);
+                dynamic payload = Serializer.Deserialize(ea.Body);
+
+                var message = MessageFactory.Create(ea, payload);
 
                 await InvokeHandlersAsync(message);
 
@@ -72,12 +74,12 @@ namespace EasyRabbitMQ.Subscribe
             channel.BasicNack(ea.DeliveryTag, false, false);
         }
 
-        private async Task InvokeHandlersAsync(dynamic message)
+        private async Task InvokeHandlersAsync(Message message)
         {
             var handler = Received;
             if (handler != null)
             {
-                foreach (var @delegate in handler.GetInvocationList().Cast<Func<dynamic, Task>>())
+                foreach (var @delegate in handler.GetInvocationList().Cast<Func<Message, Task>>())
                 {
                     await @delegate(message);
                 }
