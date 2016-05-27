@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace EasyRabbitMQ.Serialization
 {
-    internal class TypeUnawareJsonSerializer : ISerializer
+    internal class DefaultJsonSerializer : ISerializer
     {
         private readonly Encoding _textEncoding = Encoding.UTF8;
 

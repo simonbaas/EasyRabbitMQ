@@ -76,7 +76,7 @@
     <Compile Include="Subscribe\QueueAsyncSubscription.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Serialization\TypeUnawareJsonSerializer.cs" />
+    <Compile Include="Serialization\DefaultJsonSerializer.cs" />
     <Compile Include="Subscribe\Subscriber.cs" />
     <Compile Include="Subscribe\SubscriptionFactory.cs" />
     <Compile Include="Subscribe\SubscriptionFactoryExtensions.cs" />

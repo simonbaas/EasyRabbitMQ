@@ -15,7 +15,7 @@ namespace EasyRabbitMQ.Configuration
         internal EasyRabbitMQConfigurer(string connectionString)
         {
             ChannelFactory = new ChannelFactory(new ConnectionFactory(connectionString));
-            Serializer = new TypeUnawareJsonSerializer();
+            Serializer = new DefaultJsonSerializer();
             LoggerFactory = new NullLoggerFactory();
         }
 
