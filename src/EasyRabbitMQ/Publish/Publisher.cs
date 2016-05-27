@@ -60,7 +60,7 @@ namespace EasyRabbitMQ.Publish
             PublishMessageInternal(exchange, routingKey, messageProperties, message);
         }
 
-        private void PublishMessageInternal(string queueOrExchange, string routingKey,
+        private void PublishMessageInternal(string exchange, string routingKey,
             MessageProperties messageProperties, dynamic message)
         {
             var channel = _channel.Value.Instance;
@@ -69,7 +69,7 @@ namespace EasyRabbitMQ.Publish
 
             var props = CreateBasicProperties(channel, messageProperties);
 
-            channel.BasicPublish(queueOrExchange, routingKey, props, body);
+            channel.BasicPublish(exchange, routingKey, props, body);
         }
 
         private IBasicProperties CreateBasicProperties(IModel channel, MessageProperties messageProperties)
