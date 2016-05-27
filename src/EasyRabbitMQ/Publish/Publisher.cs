@@ -78,15 +78,25 @@ namespace EasyRabbitMQ.Publish
 
             var props = channel.CreateBasicProperties();
             props.ContentType = _serializer.ContentType;
-            props.CorrelationId = messageProperties.CorrelationId;
-            props.Headers = messageProperties.Headers;
-            props.MessageId = messageProperties.MessageId;
-            props.Persistent = messageProperties.PersistentMessage;
+
+            if (messageProperties.CorrelationId != null)
+            {
+                props.CorrelationId = messageProperties.CorrelationId;
+            }
 
             if (messageProperties.Expiration.HasValue)
             {
                 props.Expiration = messageProperties.Expiration.Value.ToString(CultureInfo.InvariantCulture);
             }
+
+            props.Headers = messageProperties.Headers;
+
+            if (messageProperties.MessageId != null)
+            {
+                props.MessageId = messageProperties.MessageId;
+            }
+
+            props.Persistent = messageProperties.PersistentMessage;
             
             AddApplicationHeader(props);
 
