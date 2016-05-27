@@ -13,7 +13,7 @@ namespace EasyRabbitMQ.Publish
         private readonly ISerializer _serializer;
         private readonly Lazy<Channel> _channel;
 
-        private static readonly KeyValuePair<string, object> CustomHeader = 
+        private static readonly KeyValuePair<string, object> ApplicationHeader = 
             new KeyValuePair<string, object>("x-sending-application", "EasyRabbitMQ");
 
         internal Publisher(EasyRabbitMQConfigurer configurer)
@@ -78,24 +78,25 @@ namespace EasyRabbitMQ.Publish
 
             var props = channel.CreateBasicProperties();
             props.ContentType = _serializer.ContentType;
-            props.Persistent = messageProperties.PersistentMessage;
+            props.CorrelationId = messageProperties.CorrelationId;
+            props.Headers = messageProperties.Headers;
             props.MessageId = messageProperties.MessageId;
-            
+            props.Persistent = messageProperties.PersistentMessage;
+
             if (messageProperties.Expiration.HasValue)
             {
                 props.Expiration = messageProperties.Expiration.Value.ToString(CultureInfo.InvariantCulture);
             }
-
-            props.Headers = messageProperties.Headers;
-            AttachCustomHeader(props);
+            
+            AddApplicationHeader(props);
 
             return props;
         }
 
-        private static void AttachCustomHeader(IBasicProperties basicProperties)
+        private static void AddApplicationHeader(IBasicProperties basicProperties)
         {
             if (basicProperties.Headers == null) basicProperties.Headers = new Dictionary<string, object>();
-            basicProperties.Headers.Add(CustomHeader);
+            basicProperties.Headers.Add(ApplicationHeader);
         }
 
         public void Dispose()
