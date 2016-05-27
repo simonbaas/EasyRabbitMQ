@@ -28,34 +28,14 @@ namespace EasyRabbitMQ.Subscribe
             return Subscribe(subscription, action);
         }
 
-        public IDisposable SubscribeExchange<T>(string exchange, Func<Message<T>, Task> action)
-        {
-            return SubscribeExchange(exchange, "", ExchangeType.Fanout, action);
-        }
-
-        public IDisposable SubscribeExchange<T>(string exchange, string queue, Func<Message<T>, Task> action)
-        {
-            return SubscribeExchange(exchange, queue, "", ExchangeType.Fanout, action);
-        }
-
-        public IDisposable SubscribeExchange<T>(string exchange, string queue, string routingKey, ExchangeType exchangeType, Func<Message<T>, Task> action)
+        public IDisposable SubscribeExchange<T>(string exchange, Func<Message<T>, Task> action, string queue = "",
+            string routingKey = "", ExchangeType exchangeType = ExchangeType.Topic)
         {
             CheckStarted();
 
             var key = $"{exchange}:{queue}:{routingKey}:{exchangeType}";
-            var subscription = _subscriptions.GetOrAdd(key, _ => 
-                _subscriptionFactory.SubscribeExchange<T>(exchange, queue, routingKey, exchangeType)) as ISubscription<T>;
-
-            return Subscribe(subscription, action);
-        }
-
-        public IDisposable SubscribeExchange<T>(string exchange, string routingKey, ExchangeType exchangeType, Func<Message<T>, Task> action)
-        {
-            CheckStarted();
-
-            var key = $"{exchange}:{routingKey}:{exchangeType}";
             var subscription = _subscriptions.GetOrAdd(key, _ =>
-                _subscriptionFactory.SubscribeExchange<T>(exchange, routingKey, exchangeType)) as ISubscription<T>;
+                _subscriptionFactory.SubscribeExchange<T>(exchange, queue, routingKey, exchangeType)) as ISubscription<T>;
 
             return Subscribe(subscription, action);
         }
@@ -65,26 +45,10 @@ namespace EasyRabbitMQ.Subscribe
             return SubscribeQueue<dynamic>(queue, action);
         }
 
-        public IDisposable SubscribeExchange(string exchange, Func<Message<dynamic>, Task> action)
+        public IDisposable SubscribeExchange(string exchange, Func<Message<dynamic>, Task> action, string queue = "",
+            string routingKey = "", ExchangeType exchangeType = ExchangeType.Topic)
         {
-            return SubscribeExchange<dynamic>(exchange, action);
-        }
-
-        public IDisposable SubscribeExchange(string exchange, string queue, Func<Message<dynamic>, Task> action)
-        {
-            return SubscribeExchange<dynamic>(exchange, queue, action);
-        }
-
-        public IDisposable SubscribeExchange(string exchange, string queue, string routingKey, ExchangeType exchangeType,
-            Func<Message<dynamic>, Task> action)
-        {
-            return SubscribeExchange<dynamic>(exchange, queue, routingKey, exchangeType, action);
-        }
-
-        public IDisposable SubscribeExchange(string exchange, string routingKey, ExchangeType exchangeType,
-            Func<Message<dynamic>, Task> action)
-        {
-            return SubscribeExchange<dynamic>(exchange, routingKey, exchangeType, action);
+            return SubscribeExchange<dynamic>(exchange, action, queue, routingKey, exchangeType);
         }
 
         public void Start()

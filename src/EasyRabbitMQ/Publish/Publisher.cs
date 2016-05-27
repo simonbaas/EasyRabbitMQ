@@ -22,12 +22,7 @@ namespace EasyRabbitMQ.Publish
             _channel = new Lazy<Channel>(() => configurer.ChannelFactory.CreateChannel());
         }
 
-        public void PublishQueue<T>(string queue, T message)
-        {
-            PublishQueue(queue, null, message);
-        }
-
-        public void PublishQueue<T>(string queue, MessageProperties messageProperties, T message)
+        public void PublishQueue<T>(string queue, T message, MessageProperties messageProperties = null)
         {
             if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
             if (message == null) throw new ArgumentNullException(nameof(message));
@@ -35,23 +30,7 @@ namespace EasyRabbitMQ.Publish
             PublishMessageInternal("", queue, messageProperties, message);
         }
 
-        public void PublishExchange<T>(string exchange, T message)
-        {
-            PublishExchange(exchange, "", null, message);
-        }
-
-        public void PublishExchange<T>(string exchange, MessageProperties messageProperties, T message)
-        {
-            PublishExchange(exchange, "", messageProperties, message);
-        }
-
-        public void PublishExchange<T>(string exchange, string routingKey, T message)
-        {
-            PublishExchange(exchange, routingKey, null, message);
-        }
-
-        public void PublishExchange<T>(string exchange, string routingKey, MessageProperties messageProperties,
-            T message)
+        public void PublishExchange<T>(string exchange, T message, string routingKey = "", MessageProperties messageProperties = null)
         {
             if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
@@ -60,8 +39,7 @@ namespace EasyRabbitMQ.Publish
             PublishMessageInternal(exchange, routingKey, messageProperties, message);
         }
 
-        private void PublishMessageInternal<T>(string exchange, string routingKey,
-            MessageProperties messageProperties, T message)
+        private void PublishMessageInternal<T>(string exchange, string routingKey, MessageProperties messageProperties, T message)
         {
             var channel = _channel.Value.Instance;
 

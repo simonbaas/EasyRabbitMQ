@@ -11,14 +11,14 @@ namespace EasyRabbitMQ.Subscribe
         private string _queue;
         private IModel _channel;
 
-        public ExchangeAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
-            string exchange, string routingKey, ExchangeType exchangeType) 
+        internal ExchangeAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
+            string exchange, string queue, string routingKey, ExchangeType exchangeType) 
             : base(channel, serializer, loggerFactory)
         {
-            Initialize(exchange, routingKey, exchangeType);
+            Initialize(exchange, queue, routingKey, exchangeType);
         }
 
-        private void Initialize(string exchange, string routingKey, ExchangeType exchangeType)
+        private void Initialize(string exchange, string queue, string routingKey, ExchangeType exchangeType)
         {
             var channel = Channel.Instance;
 
@@ -29,20 +29,25 @@ namespace EasyRabbitMQ.Subscribe
                 autoDelete: false,
                 arguments: null);
 
+            var queueExclusive = queue == "";
+            var queueAutoDelete = queueExclusive;
+            var queueDurable = !queueAutoDelete;
+
             var queueOk = channel.QueueDeclare(
-                queue: "",
-                durable: false,
-                exclusive: true,
-                autoDelete: true,
+                queue: queue,
+                durable: queueDurable,
+                exclusive: queueExclusive,
+                autoDelete: queueAutoDelete,
                 arguments: null);
 
-            _queue = queueOk.QueueName;
+            queue = queueOk.QueueName;
 
             channel.QueueBind(
-                queue: _queue,
+                queue: queue,
                 exchange: exchange,
                 routingKey: routingKey);
 
+            _queue = queue;
             _channel = channel;
         }
 

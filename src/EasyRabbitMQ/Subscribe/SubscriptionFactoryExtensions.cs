@@ -9,36 +9,24 @@ namespace EasyRabbitMQ.Subscribe
         {
             if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
 
-            var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
+            var channel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
             var loggerFactory = subscriptionFactory.LoggerFactory;
-            return new QueueAsyncSubscription<T>(connectionAndChannel, serializer, loggerFactory, queue);
+            return new QueueAsyncSubscription<T>(channel, serializer, loggerFactory, queue);
         }
 
         public static ISubscription<T> SubscribeExchange<T>(this ISubscriptionFactory subscriptionFactory, string exchange,
             string queue, string routingKey, ExchangeType exchangeType)
         {
             if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
-            if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
+            if (queue == null) throw new ArgumentNullException(nameof(queue));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
 
-            var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
+            var channel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
             var loggerFactory = subscriptionFactory.LoggerFactory;
-            return new ExchangeAndQueueAsyncSubscription<T>(connectionAndChannel, serializer, loggerFactory, 
+            return new ExchangeAsyncSubscription<T>(channel, serializer, loggerFactory, 
                 exchange, queue, routingKey, exchangeType);
-        }
-
-        public static ISubscription<T> SubscribeExchange<T>(this ISubscriptionFactory subscriptionFactory, string exchange,
-            string routingKey, ExchangeType exchangeType)
-        {
-            if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
-            if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
-
-            var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
-            var serializer = subscriptionFactory.Serializer;
-            var loggerFactory = subscriptionFactory.LoggerFactory;
-            return new ExchangeAsyncSubscription<T>(connectionAndChannel, serializer, loggerFactory, exchange, routingKey, exchangeType);
         }
     }
 }
