@@ -68,6 +68,7 @@
     <Compile Include="Publish\IPublisher.cs" />
     <Compile Include="Subscribe\ExchangeAndQueueAsyncSubscription.cs" />
     <Compile Include="Subscribe\ExchangeAsyncSubscription.cs" />
+    <Compile Include="Subscribe\IStartable.cs" />
     <Compile Include="Subscribe\ISubscriber.cs" />
     <Compile Include="Subscribe\ISubscription.cs" />
     <Compile Include="Infrastructure\MessageProperties.cs" />

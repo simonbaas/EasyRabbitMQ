@@ -2,13 +2,13 @@
 
 namespace EasyRabbitMQ.Infrastructure
 {
-    public class Message
+    public class Message<T>
     {
         public Fields Fields { get; }
         public Properties Properties { get; }
-        public dynamic Payload { get; }
+        public T Payload { get; }
 
-        internal Message(Fields fields, Properties properties, dynamic payload)
+        internal Message(Fields fields, Properties properties, T payload)
         {
             Fields = fields;
             Properties = properties;

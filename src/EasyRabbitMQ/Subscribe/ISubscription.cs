@@ -4,9 +4,8 @@ using EasyRabbitMQ.Infrastructure;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal interface ISubscription : IDisposable
+    internal interface ISubscription<T> : IStartable
     {
-        event Func<Message, Task> Received;
-        void Start();
+        event Func<Message<T>, Task> Received;
     }
 }

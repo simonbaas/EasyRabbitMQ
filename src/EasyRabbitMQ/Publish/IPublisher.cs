@@ -5,11 +5,11 @@ namespace EasyRabbitMQ.Publish
 {
     public interface IPublisher : IDisposable
     {
-        void PublishQueue(string queue, dynamic message);
-        void PublishQueue(string queue, MessageProperties messageProperties, dynamic message);
-        void PublishExchange(string exchange, dynamic message);
-        void PublishExchange(string exchange, MessageProperties messageProperties, dynamic message);
-        void PublishExchange(string exchange, string routingKey, dynamic message);
-        void PublishExchange(string exchange, string routingKey, MessageProperties messageProperties, dynamic message);
+        void PublishQueue<T>(string queue, T message);
+        void PublishQueue<T>(string queue, MessageProperties messageProperties, T message);
+        void PublishExchange<T>(string exchange, T message);
+        void PublishExchange<T>(string exchange, MessageProperties messageProperties, T message);
+        void PublishExchange<T>(string exchange, string routingKey, T message);
+        void PublishExchange<T>(string exchange, string routingKey, MessageProperties messageProperties, T message);
     }
 }

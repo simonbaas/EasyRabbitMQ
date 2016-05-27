@@ -13,7 +13,7 @@ namespace EasyRabbitMQ.Publish
         private readonly ISerializer _serializer;
         private readonly Lazy<Channel> _channel;
 
-        private static readonly KeyValuePair<string, object> ApplicationHeader = 
+        private static readonly KeyValuePair<string, object> ApplicationHeader =
             new KeyValuePair<string, object>("x-sending-application", "EasyRabbitMQ");
 
         internal Publisher(EasyRabbitMQConfigurer configurer)
@@ -22,12 +22,12 @@ namespace EasyRabbitMQ.Publish
             _channel = new Lazy<Channel>(() => configurer.ChannelFactory.CreateChannel());
         }
 
-        public void PublishQueue(string queue, dynamic message)
+        public void PublishQueue<T>(string queue, T message)
         {
             PublishQueue(queue, null, message);
         }
 
-        public void PublishQueue(string queue, MessageProperties messageProperties, dynamic message)
+        public void PublishQueue<T>(string queue, MessageProperties messageProperties, T message)
         {
             if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
             if (message == null) throw new ArgumentNullException(nameof(message));
@@ -35,23 +35,23 @@ namespace EasyRabbitMQ.Publish
             PublishMessageInternal("", queue, messageProperties, message);
         }
 
-        public void PublishExchange(string exchange, dynamic message)
+        public void PublishExchange<T>(string exchange, T message)
         {
             PublishExchange(exchange, "", null, message);
         }
 
-        public void PublishExchange(string exchange, MessageProperties messageProperties, dynamic message)
+        public void PublishExchange<T>(string exchange, MessageProperties messageProperties, T message)
         {
             PublishExchange(exchange, "", messageProperties, message);
         }
 
-        public void PublishExchange(string exchange, string routingKey, dynamic message)
+        public void PublishExchange<T>(string exchange, string routingKey, T message)
         {
             PublishExchange(exchange, routingKey, null, message);
         }
 
-        public void PublishExchange(string exchange, string routingKey, MessageProperties messageProperties,
-            dynamic message)
+        public void PublishExchange<T>(string exchange, string routingKey, MessageProperties messageProperties,
+            T message)
         {
             if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
@@ -60,8 +60,8 @@ namespace EasyRabbitMQ.Publish
             PublishMessageInternal(exchange, routingKey, messageProperties, message);
         }
 
-        private void PublishMessageInternal(string exchange, string routingKey,
-            MessageProperties messageProperties, dynamic message)
+        private void PublishMessageInternal<T>(string exchange, string routingKey,
+            MessageProperties messageProperties, T message)
         {
             var channel = _channel.Value.Instance;
 
@@ -97,7 +97,7 @@ namespace EasyRabbitMQ.Publish
             }
 
             props.Persistent = messageProperties.PersistentMessage;
-            
+
             AddApplicationHeader(props);
 
             return props;

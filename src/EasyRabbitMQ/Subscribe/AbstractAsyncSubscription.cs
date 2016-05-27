@@ -9,9 +9,9 @@ using RabbitMQ.Client.Events;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal abstract class AbstractAsyncSubscription : ISubscription
+    internal abstract class AbstractAsyncSubscription<T> : ISubscription<T>
     {
-        public event Func<Message, Task> Received;
+        public event Func<Message<T>, Task> Received;
 
         protected Channel Channel { get; }
         protected ISerializer Serializer { get; }
@@ -24,7 +24,7 @@ namespace EasyRabbitMQ.Subscribe
             Channel = channel;
             Serializer = serializer;
 
-            _logger = loggerFactory.GetLogger<AbstractAsyncSubscription>();
+            _logger = loggerFactory.GetLogger(typeof (AbstractAsyncSubscription<>));
         }
 
         protected abstract IModel GetChannel();
@@ -56,11 +56,11 @@ namespace EasyRabbitMQ.Subscribe
 
             try
             {
-                dynamic payload = Serializer.Deserialize(ea.Body);
+                var payload = Serializer.Deserialize<T>(ea.Body);
 
                 var message = MessageFactory.Create(ea, payload);
 
-                await InvokeHandlersAsync(message);
+                await InvokeHandlersAsync(message).ConfigureAwait(false);
 
                 channel.BasicAck(ea.DeliveryTag, false);
 
@@ -74,14 +74,14 @@ namespace EasyRabbitMQ.Subscribe
             channel.BasicNack(ea.DeliveryTag, false, false);
         }
 
-        private async Task InvokeHandlersAsync(Message message)
+        private async Task InvokeHandlersAsync(Message<T> message)
         {
             var handler = Received;
             if (handler != null)
             {
-                foreach (var @delegate in handler.GetInvocationList().Cast<Func<Message, Task>>())
+                foreach (var @delegate in handler.GetInvocationList().Cast<Func<Message<T>, Task>>())
                 {
-                    await @delegate(message);
+                    await @delegate(message).ConfigureAwait(false);
                 }
             }
         }

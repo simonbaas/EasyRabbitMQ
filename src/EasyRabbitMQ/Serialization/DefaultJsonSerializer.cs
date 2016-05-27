@@ -10,13 +10,13 @@ namespace EasyRabbitMQ.Serialization
 
         public string ContentType => "application/json";
 
-        public object Deserialize(byte[] bytes)
+        public T Deserialize<T>(byte[] bytes)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
 
             var str = _textEncoding.GetString(bytes);
 
-            return JsonConvert.DeserializeObject(str);
+            return JsonConvert.DeserializeObject<T>(str);
         }
 
         public byte[] Serialize<T>(T value)

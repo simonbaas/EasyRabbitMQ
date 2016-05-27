@@ -5,17 +5,17 @@ namespace EasyRabbitMQ.Subscribe
 {
     internal static class SubscriptionFactoryExtensions
     {
-        public static ISubscription SubscribeQueue(this ISubscriptionFactory subscriptionFactory, string queue)
+        public static ISubscription<T> SubscribeQueue<T>(this ISubscriptionFactory subscriptionFactory, string queue)
         {
             if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
 
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
             var loggerFactory = subscriptionFactory.LoggerFactory;
-            return new QueueAsyncSubscription(connectionAndChannel, serializer, loggerFactory, queue);
+            return new QueueAsyncSubscription<T>(connectionAndChannel, serializer, loggerFactory, queue);
         }
 
-        public static ISubscription SubscribeExchange(this ISubscriptionFactory subscriptionFactory, string exchange,
+        public static ISubscription<T> SubscribeExchange<T>(this ISubscriptionFactory subscriptionFactory, string exchange,
             string queue, string routingKey, ExchangeType exchangeType)
         {
             if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
@@ -25,11 +25,11 @@ namespace EasyRabbitMQ.Subscribe
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
             var loggerFactory = subscriptionFactory.LoggerFactory;
-            return new ExchangeAndQueueAsyncSubscription(connectionAndChannel, serializer, loggerFactory, 
+            return new ExchangeAndQueueAsyncSubscription<T>(connectionAndChannel, serializer, loggerFactory, 
                 exchange, queue, routingKey, exchangeType);
         }
 
-        public static ISubscription SubscribeExchange(this ISubscriptionFactory subscriptionFactory, string exchange,
+        public static ISubscription<T> SubscribeExchange<T>(this ISubscriptionFactory subscriptionFactory, string exchange,
             string routingKey, ExchangeType exchangeType)
         {
             if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
@@ -38,7 +38,7 @@ namespace EasyRabbitMQ.Subscribe
             var connectionAndChannel = subscriptionFactory.ChannelFactory.CreateChannel();
             var serializer = subscriptionFactory.Serializer;
             var loggerFactory = subscriptionFactory.LoggerFactory;
-            return new ExchangeAsyncSubscription(connectionAndChannel, serializer, loggerFactory, exchange, routingKey, exchangeType);
+            return new ExchangeAsyncSubscription<T>(connectionAndChannel, serializer, loggerFactory, exchange, routingKey, exchangeType);
         }
     }
 }

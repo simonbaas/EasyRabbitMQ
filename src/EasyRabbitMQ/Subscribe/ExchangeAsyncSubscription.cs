@@ -6,7 +6,7 @@ using ExchangeType = EasyRabbitMQ.Infrastructure.ExchangeType;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal class ExchangeAsyncSubscription : AbstractAsyncSubscription
+    internal class ExchangeAsyncSubscription<T> : AbstractAsyncSubscription<T>
     {
         private string _queue;
         private IModel _channel;

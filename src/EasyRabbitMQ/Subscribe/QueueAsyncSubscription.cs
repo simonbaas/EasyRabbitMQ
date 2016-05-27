@@ -5,7 +5,7 @@ using RabbitMQ.Client;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal class QueueAsyncSubscription : AbstractAsyncSubscription
+    internal class QueueAsyncSubscription<T> : AbstractAsyncSubscription<T>
     {
         private readonly string _queue;
         private IModel _channel;

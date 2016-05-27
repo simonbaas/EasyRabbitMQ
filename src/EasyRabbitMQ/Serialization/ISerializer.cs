@@ -4,7 +4,7 @@ namespace EasyRabbitMQ.Serialization
     {
         string ContentType { get; }
 
-        object Deserialize(byte[] bytes);
+        T Deserialize<T>(byte[] bytes);
         byte[] Serialize<T>(T obj);
     }
 }

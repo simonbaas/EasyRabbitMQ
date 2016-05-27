@@ -2,14 +2,14 @@
 
 namespace EasyRabbitMQ.Infrastructure
 {
-    public static class MessageFactory
+    internal static class MessageFactory
     {
-        public static Message Create(BasicDeliverEventArgs ea, dynamic payload)
+        internal static Message<T> Create<T>(BasicDeliverEventArgs ea, T payload)
         {
             var fields = CreateFields(ea);
             var properties = CreateProperties(ea);
 
-            return new Message(fields, properties, payload);
+            return new Message<T>(fields, properties, payload);
         }
 
         private static Fields CreateFields(BasicDeliverEventArgs ea)
