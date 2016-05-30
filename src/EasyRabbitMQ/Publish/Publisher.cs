@@ -22,7 +22,7 @@ namespace EasyRabbitMQ.Publish
             _channel = new Lazy<Channel>(() => configurer.ChannelFactory.CreateChannel());
         }
 
-        public void PublishQueue<T>(string queue, T message, MessageProperties messageProperties = null)
+        public void PublishQueue<TMessage>(string queue, TMessage message, MessageProperties messageProperties = null)
         {
             if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
             if (message == null) throw new ArgumentNullException(nameof(message));
@@ -30,7 +30,7 @@ namespace EasyRabbitMQ.Publish
             PublishMessageInternal("", queue, messageProperties, message);
         }
 
-        public void PublishExchange<T>(string exchange, T message, string routingKey = "", MessageProperties messageProperties = null)
+        public void PublishExchange<TMessage>(string exchange, TMessage message, string routingKey = "", MessageProperties messageProperties = null)
         {
             if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
@@ -39,7 +39,7 @@ namespace EasyRabbitMQ.Publish
             PublishMessageInternal(exchange, routingKey, messageProperties, message);
         }
 
-        private void PublishMessageInternal<T>(string exchange, string routingKey, MessageProperties messageProperties, T message)
+        private void PublishMessageInternal<TMessage>(string exchange, string routingKey, MessageProperties messageProperties, TMessage message)
         {
             var body = _serializer.Serialize(message);
 
