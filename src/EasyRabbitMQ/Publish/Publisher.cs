@@ -41,13 +41,16 @@ namespace EasyRabbitMQ.Publish
 
         private void PublishMessageInternal<T>(string exchange, string routingKey, MessageProperties messageProperties, T message)
         {
-            var channel = _channel.Value.Instance;
-
             var body = _serializer.Serialize(message);
 
-            var props = CreateBasicProperties(channel, messageProperties);
+            var channel = _channel.Value.Instance;
 
-            channel.BasicPublish(exchange, routingKey, props, body);
+            lock (channel)
+            {
+                var props = CreateBasicProperties(channel, messageProperties);
+
+                channel.BasicPublish(exchange, routingKey, props, body);
+            }
         }
 
         private IBasicProperties CreateBasicProperties(IModel channel, MessageProperties messageProperties)
