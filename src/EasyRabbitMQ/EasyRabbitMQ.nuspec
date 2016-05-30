@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>EasyRabbitMQ</id>
+    <version>$version$</version>
+    <title>EasyRabbitMQ</title>
+    <authors>Simon Baas</authors>
+    <owners>Simon Baas</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/simonbaas/EasyRabbitMQ</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A library to provide an easy api when working with RabbitMQ on .NET</description>
+    <copyright>Copyright Simon Baas 2016</copyright>
+    <tags>easyrabbitmq rabbitmq messaging queue</tags>
+	<dependencies>
+      <dependency id="Newtonsoft.Json" version="7.0.1" />
+    </dependencies>
+  </metadata>
+</package>
