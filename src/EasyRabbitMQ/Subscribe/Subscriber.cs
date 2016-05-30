@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading.Tasks;
 using EasyRabbitMQ.Configuration;
 using EasyRabbitMQ.Infrastructure;
 
@@ -10,7 +9,6 @@ namespace EasyRabbitMQ.Subscribe
     internal class Subscriber : ISubscriber
     {
         private readonly ISubscriptionFactory _subscriptionFactory;
-        private readonly IMessageHandlerActivator _activator;
         private readonly ConcurrentDictionary<string, IStartable> _subscriptions = new ConcurrentDictionary<string, IStartable>();
         private readonly object _startLock = new object();
         private bool _isStarted;
@@ -18,59 +16,38 @@ namespace EasyRabbitMQ.Subscribe
         internal Subscriber(EasyRabbitMQConfigurer configurer)
         {
             _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer, configurer.LoggerFactory,
-                configurer.MessageRetryHandler);
-            _activator = configurer.Activator;
+                configurer.MessageHandlerActivator, configurer.MessageRetryHandler);
         }
 
-        public IDisposable SubscribeQueue<TMessage>(string queue, Func<Message<TMessage>, Task> action)
+        public ISubscription<TMessage> Queue<TMessage>(string queue)
         {
             CheckStarted();
 
-            var subscription =  _subscriptions.GetOrAdd(queue, _ => _subscriptionFactory.SubscribeQueue<TMessage>(queue)) as ISubscription<TMessage>;
+            var subscription = _subscriptions.GetOrAdd(queue, _ => _subscriptionFactory.SubscribeQueue<TMessage>(queue)) as ISubscription<TMessage>;
 
-            return Subscribe(subscription, action);
+            return subscription;
         }
 
-        public IDisposable SubscribeQueue<TMessage, THandler>(string queue) where THandler : IHandleMessagesAsync<TMessage>
+        public ISubscription<TMessage> Exchange<TMessage>(string exchange, string queue = "", string routingKey = "",
+            ExchangeType exchangeType = ExchangeType.Topic)
         {
             CheckStarted();
 
-            var handler = _activator.Get<TMessage, THandler>();
+            var subscription = _subscriptions.GetOrAdd(queue, 
+                _ => _subscriptionFactory.SubscribeExchange<TMessage>(exchange, queue, routingKey, exchangeType)) as ISubscription<TMessage>;
 
-            return SubscribeQueue<TMessage>(queue, handler.HandleAsync);
+            return subscription;
         }
 
-        public IDisposable SubscribeExchange<TMessage>(string exchange, Func<Message<TMessage>, Task> action, string queue = "",
-            string routingKey = "", ExchangeType exchangeType = ExchangeType.Topic)
+        public ISubscription<dynamic> Queue(string queue)
         {
-            CheckStarted();
-
-            var key = $"{exchange}:{queue}:{routingKey}:{exchangeType}";
-            var subscription = _subscriptions.GetOrAdd(key, _ =>
-                _subscriptionFactory.SubscribeExchange<TMessage>(exchange, queue, routingKey, exchangeType)) as ISubscription<TMessage>;
-
-            return Subscribe(subscription, action);
+            return Queue<dynamic>(queue);
         }
 
-        public IDisposable SubscribeExchange<TMessage, THandler>(string exchange, string queue = "",
-            string routingKey = "", ExchangeType exchangeType = ExchangeType.Topic) where THandler : IHandleMessagesAsync<TMessage>
+        public ISubscription<dynamic> Exchange(string exchange, string queue = "", string routingKey = "",
+            ExchangeType exchangeType = ExchangeType.Topic)
         {
-            CheckStarted();
-
-            var handler = _activator.Get<TMessage, THandler>();
-
-            return SubscribeExchange<TMessage>(exchange, handler.HandleAsync, queue, routingKey, exchangeType);
-        }
-
-        public IDisposable SubscribeQueue(string queue, Func<Message<dynamic>, Task> action)
-        {
-            return SubscribeQueue<dynamic>(queue, action);
-        }
-
-        public IDisposable SubscribeExchange(string exchange, Func<Message<dynamic>, Task> action, string queue = "",
-            string routingKey = "", ExchangeType exchangeType = ExchangeType.Topic)
-        {
-            return SubscribeExchange<dynamic>(exchange, action, queue, routingKey, exchangeType);
+            return Exchange<dynamic>(exchange, queue, routingKey, exchangeType);
         }
 
         public void Start()
@@ -99,15 +76,6 @@ namespace EasyRabbitMQ.Subscribe
             {
                 if (_isStarted) throw new InvalidOperationException("Subscriber is already started!");
             }
-        }
-
-        private static IDisposable Subscribe<T>(ISubscription<T> subscription, Func<Message<T>, Task> action)
-        {
-            Func<dynamic, Task> handler = message => action(message);
-
-            subscription.Received += handler;
-
-            return new DisposableAction(() => subscription.Received -= handler);
         }
 
         public void Dispose()

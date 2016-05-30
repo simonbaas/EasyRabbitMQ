@@ -10,29 +10,54 @@ using RabbitMQ.Client.Events;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal abstract class AbstractAsyncSubscription<T> : ISubscription<T>
+    internal abstract class AbstractAsyncSubscription<TMessage> : ISubscription<TMessage>, IStartable
     {
-        public event Func<Message<T>, Task> Received;
+        public event Func<Message<TMessage>, Task> Received;
 
         protected Channel Channel { get; }
         protected ISerializer Serializer { get; }
         protected EventingBasicConsumer Consumer { get; private set; }
 
+        private readonly IMessageHandlerActivator _activator;
         private readonly IMessageRetryHandler _messageRetryHandler;
         private readonly ILogger _logger;
 
         protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, 
-            IMessageRetryHandler messageRetryHandler)
+            IMessageHandlerActivator activator, IMessageRetryHandler messageRetryHandler)
         {
             Channel = channel;
             Serializer = serializer;
 
+            _activator = activator;
             _messageRetryHandler = messageRetryHandler;
             _logger = loggerFactory.GetLogger(typeof (AbstractAsyncSubscription<>));
         }
 
         protected abstract IModel GetChannel();
         protected abstract string GetQueue();
+
+        public ISubscription<TMessage> AddHandler(Func<Message<TMessage>, Task> action)
+        {
+            return RegisterHandler(action);
+        }
+
+        public ISubscription<TMessage> AddHandler<THandler>() where THandler : IHandleMessagesAsync<TMessage>
+        {
+            var handler = _activator.Get<TMessage, THandler>();
+
+            return RegisterHandler<TMessage>(handler.HandleAsync);
+        }
+
+        private ISubscription<TMessage> RegisterHandler<T>(Func<Message<T>, Task> action)
+        {
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            Func<dynamic, Task> handler = message => action(message);
+
+            Received += handler;
+
+            return this;
+        }
 
         public void Start()
         {
@@ -60,7 +85,7 @@ namespace EasyRabbitMQ.Subscribe
 
             try
             {
-                var payload = Serializer.Deserialize<T>(ea.Body);
+                var payload = Serializer.Deserialize<TMessage>(ea.Body);
 
                 var message = MessageFactory.Create(ea, payload);
 
@@ -88,12 +113,12 @@ namespace EasyRabbitMQ.Subscribe
             channel.BasicNack(ea.DeliveryTag, false, false);
         }
 
-        private async Task InvokeHandlersAsync(Message<T> message)
+        private async Task InvokeHandlersAsync(Message<TMessage> message)
         {
             var handler = Received;
             if (handler != null)
             {
-                foreach (var @delegate in handler.GetInvocationList().Cast<Func<Message<T>, Task>>())
+                foreach (var @delegate in handler.GetInvocationList().Cast<Func<Message<TMessage>, Task>>())
                 {
                     await @delegate(message).ConfigureAwait(false);
                 }

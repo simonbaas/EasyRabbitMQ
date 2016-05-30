@@ -4,8 +4,9 @@ using EasyRabbitMQ.Infrastructure;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal interface ISubscription<T> : IStartable
+    public interface ISubscription<TMessage>
     {
-        event Func<Message<T>, Task> Received;
+        ISubscription<TMessage> AddHandler(Func<Message<TMessage>, Task> action);
+        ISubscription<TMessage> AddHandler<THandler>() where THandler : IHandleMessagesAsync<TMessage>;
     }
 }

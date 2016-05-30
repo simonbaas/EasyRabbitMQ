@@ -11,9 +11,10 @@ namespace EasyRabbitMQ.Subscribe
         private readonly string _queue;
         private IModel _channel;
 
-        internal QueueAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, IMessageRetryHandler messageRetryHandler,
+        internal QueueAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, 
+            IMessageHandlerActivator messageHandlerActivator, IMessageRetryHandler messageRetryHandler,
             string queue)
-            : base(channel, serializer, loggerFactory, messageRetryHandler)
+            : base(channel, serializer, loggerFactory, messageHandlerActivator, messageRetryHandler)
         {
             _queue = queue;
 
