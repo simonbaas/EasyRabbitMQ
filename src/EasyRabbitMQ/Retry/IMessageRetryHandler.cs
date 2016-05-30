@@ -3,7 +3,7 @@ using RabbitMQ.Client.Events;
 
 namespace EasyRabbitMQ.Retry
 {
-    public interface IMessageRetryHandler : IDisposable
+    internal interface IMessageRetryHandler : IDisposable
     {
         bool ShouldRetryMessage(BasicDeliverEventArgs ea);
         void RetryMessage(BasicDeliverEventArgs ea);

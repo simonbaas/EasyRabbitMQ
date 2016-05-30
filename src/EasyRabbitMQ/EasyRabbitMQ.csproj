@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="Extensions\HeadersExtensions.cs" />
     <Compile Include="Infrastructure\ExchangeType.cs" />
+    <Compile Include="Infrastructure\IHandleMessagesAsync.cs" />
+    <Compile Include="Infrastructure\IMessageHandlerActivator.cs" />
     <Compile Include="Infrastructure\Message.cs" />
     <Compile Include="Infrastructure\MessageFactory.cs" />
     <Compile Include="Logging\AbstractLoggerFactory.cs" />
