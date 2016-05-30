@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.Remoting.Messaging;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Retry;
@@ -28,9 +27,7 @@ namespace EasyRabbitMQ.Subscribe
             if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
 
             var channel = _channelFactory.CreateChannel();
-            var serializer = _serializer;
-            var loggerFactory = _loggerFactory;
-            return new QueueAsyncSubscription<T>(channel, serializer, loggerFactory, _messageRetryHandler, queue);
+            return new QueueAsyncSubscription<T>(channel, _serializer, _loggerFactory, _messageRetryHandler, queue);
         }
 
         public ISubscription<T> SubscribeExchange<T>(string exchange, string queue, string routingKey, ExchangeType exchangeType)
@@ -40,9 +37,7 @@ namespace EasyRabbitMQ.Subscribe
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
 
             var channel = _channelFactory.CreateChannel();
-            var serializer = _serializer;
-            var loggerFactory = _loggerFactory;
-            return new ExchangeAsyncSubscription<T>(channel, serializer, loggerFactory, _messageRetryHandler,
+            return new ExchangeAsyncSubscription<T>(channel, _serializer, _loggerFactory, _messageRetryHandler,
                 exchange, queue, routingKey, exchangeType);
         }
     }
