@@ -1,5 +1,6 @@
 ﻿using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
+using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
 
@@ -10,8 +11,9 @@ namespace EasyRabbitMQ.Subscribe
         private readonly string _queue;
         private IModel _channel;
 
-        internal QueueAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, string queue)
-            : base(channel, serializer, loggerFactory)
+        internal QueueAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, IMessageRetryHandler messageRetryHandler,
+            string queue)
+            : base(channel, serializer, loggerFactory, messageRetryHandler)
         {
             _queue = queue;
 

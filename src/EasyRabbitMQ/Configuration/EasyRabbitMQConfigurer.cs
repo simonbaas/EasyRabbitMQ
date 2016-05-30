@@ -1,6 +1,8 @@
-﻿using EasyRabbitMQ.Infrastructure;
+﻿using System;
+using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Publish;
+using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
 using EasyRabbitMQ.Subscribe;
 
@@ -9,23 +11,27 @@ namespace EasyRabbitMQ.Configuration
     public class EasyRabbitMQConfigurer
     {
         internal IChannelFactory ChannelFactory { get; }
-        internal ISerializer Serializer { get; private set; }
-        internal ILoggerFactory LoggerFactory { get; private set; }
+        internal IMessageRetryHandler MessageRetryHandler { get; private set; }
+
+        internal ISerializer Serializer { get; private set; } = new DefaultJsonSerializer();
+        internal ILoggerFactory LoggerFactory { get; private set; } = new NullLoggerFactory();
 
         internal EasyRabbitMQConfigurer(string connectionString)
         {
             ChannelFactory = new ChannelFactory(new ConnectionFactory(connectionString));
-            Serializer = new DefaultJsonSerializer();
-            LoggerFactory = new NullLoggerFactory();
         }
 
         public void Use(ISerializer serializer)
         {
+            if (serializer == null) throw new ArgumentNullException(nameof(serializer));
+
             Serializer = serializer;
         }
 
         public void Use(ILoggerFactory loggerFactory)
         {
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+
             LoggerFactory = loggerFactory;
         }
 
@@ -34,8 +40,10 @@ namespace EasyRabbitMQ.Configuration
             return new Publisher(this);
         }
 
-        public ISubscriber AsSubscriber()
+        public ISubscriber AsSubscriber(int numberOfRetries = 0)
         {
+            MessageRetryHandler = new MessageRetryHandler(ChannelFactory, LoggerFactory, numberOfRetries);
+
             return new Subscriber(this);
         }
     }

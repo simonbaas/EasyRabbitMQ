@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
+using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -17,13 +18,16 @@ namespace EasyRabbitMQ.Subscribe
         protected ISerializer Serializer { get; }
         protected EventingBasicConsumer Consumer { get; private set; }
 
+        private readonly IMessageRetryHandler _messageRetryHandler;
         private readonly ILogger _logger;
 
-        protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory)
+        protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, 
+            IMessageRetryHandler messageRetryHandler)
         {
             Channel = channel;
             Serializer = serializer;
 
+            _messageRetryHandler = messageRetryHandler;
             _logger = loggerFactory.GetLogger(typeof (AbstractAsyncSubscription<>));
         }
 
@@ -66,9 +70,19 @@ namespace EasyRabbitMQ.Subscribe
 
                 return;
             }
+            catch (Exception ex) when (_messageRetryHandler.ShouldRetryMessage(ea))
+            {
+                channel.BasicAck(ea.DeliveryTag, false);
+
+                _logger.Error($"Failed to process message received from queue '{GetQueue()}'. Retrying message.", ex);
+
+                _messageRetryHandler.RetryMessage(ea);
+
+                return;
+            }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to process message received from queue '{GetQueue()}'", ex);
+                _logger.Error($"Failed to process message received from queue '{GetQueue()}'.", ex);
             }
 
             channel.BasicNack(ea.DeliveryTag, false, false);
@@ -109,6 +123,7 @@ namespace EasyRabbitMQ.Subscribe
                         Consumer.Received -= ConsumerOnReceived;
                     }
 
+                    _messageRetryHandler?.Dispose();
                     Channel?.Dispose();
                 }
 

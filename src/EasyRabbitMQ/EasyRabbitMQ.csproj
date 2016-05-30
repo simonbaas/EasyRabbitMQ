@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\HeadersExtensions.cs" />
     <Compile Include="Infrastructure\ExchangeType.cs" />
     <Compile Include="Infrastructure\Message.cs" />
     <Compile Include="Infrastructure\MessageFactory.cs" />
@@ -56,6 +57,9 @@
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Logging\NullLoggerFactory.cs" />
+    <Compile Include="Retry\IMessageRetryHandler.cs" />
+    <Compile Include="Retry\MesageRetryConstants.cs" />
+    <Compile Include="Retry\MessageRetryHandler.cs" />
     <Compile Include="Subscribe\AbstractAsyncSubscription.cs" />
     <Compile Include="Configuration\EasyRabbitMQConfigure.cs" />
     <Compile Include="Configuration\EasyRabbitMQConfigurer.cs" />
@@ -79,7 +83,6 @@
     <Compile Include="Serialization\DefaultJsonSerializer.cs" />
     <Compile Include="Subscribe\Subscriber.cs" />
     <Compile Include="Subscribe\SubscriptionFactory.cs" />
-    <Compile Include="Subscribe\SubscriptionFactoryExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
