@@ -24,22 +24,24 @@ namespace EasyRabbitMQ.Subscribe
             _messageRetryHandler = messageRetryHandler;
         }
 
-        public AbstractAsyncSubscription<T> SubscribeQueue<T>(string queue)
+        public AbstractAsyncSubscription<TMessage> SubscribeQueue<TMessage>(string queue)
         {
             if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
 
             var channel = _channelFactory.CreateChannel();
-            return new QueueAsyncSubscription<T>(channel, _serializer, _loggerFactory, _messageHandlerActivator, _messageRetryHandler, queue);
+            var messageDispatcher = new MessageDispatcher<TMessage>(_messageHandlerActivator);
+            return new QueueAsyncSubscription<TMessage>(channel, _serializer, _loggerFactory, messageDispatcher, _messageRetryHandler, queue);
         }
 
-        public AbstractAsyncSubscription<T> SubscribeExchange<T>(string exchange, string queue, string routingKey, ExchangeType exchangeType)
+        public AbstractAsyncSubscription<TMessage> SubscribeExchange<TMessage>(string exchange, string queue, string routingKey, ExchangeType exchangeType)
         {
             if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (queue == null) throw new ArgumentNullException(nameof(queue));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
 
             var channel = _channelFactory.CreateChannel();
-            return new ExchangeAsyncSubscription<T>(channel, _serializer, _loggerFactory, _messageHandlerActivator, _messageRetryHandler,
+            var messageDispatcher = new MessageDispatcher<TMessage>(_messageHandlerActivator);
+            return new ExchangeAsyncSubscription<TMessage>(channel, _serializer, _loggerFactory, messageDispatcher, _messageRetryHandler,
                 exchange, queue, routingKey, exchangeType);
         }
     }

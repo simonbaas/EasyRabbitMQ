@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
@@ -12,23 +11,21 @@ namespace EasyRabbitMQ.Subscribe
 {
     internal abstract class AbstractAsyncSubscription<TMessage> : ISubscription<TMessage>, IStartable
     {
-        public event Func<Message<TMessage>, Task> Received;
-
         protected Channel Channel { get; }
         protected ISerializer Serializer { get; }
         protected EventingBasicConsumer Consumer { get; private set; }
 
-        private readonly IMessageHandlerActivator _activator;
+        private readonly IMessageDispatcher<TMessage> _messageDispatcher; 
         private readonly IMessageRetryHandler _messageRetryHandler;
         private readonly ILogger _logger;
 
-        protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, 
-            IMessageHandlerActivator activator, IMessageRetryHandler messageRetryHandler)
+        protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
+            IMessageDispatcher<TMessage> messageDispatcher, IMessageRetryHandler messageRetryHandler)
         {
             Channel = channel;
             Serializer = serializer;
 
-            _activator = activator;
+            _messageDispatcher = messageDispatcher;
             _messageRetryHandler = messageRetryHandler;
             _logger = loggerFactory.GetLogger(typeof (AbstractAsyncSubscription<>));
         }
@@ -38,23 +35,14 @@ namespace EasyRabbitMQ.Subscribe
 
         public ISubscription<TMessage> AddHandler(Func<Message<TMessage>, Task> action)
         {
-            return RegisterHandler(action);
+            _messageDispatcher.AddHandler(action);
+
+            return this;
         }
 
         public ISubscription<TMessage> AddHandler<THandler>() where THandler : IHandleMessagesAsync<TMessage>
         {
-            var handler = _activator.Get<TMessage, THandler>();
-
-            return RegisterHandler<TMessage>(handler.HandleAsync);
-        }
-
-        private ISubscription<TMessage> RegisterHandler<T>(Func<Message<T>, Task> action)
-        {
-            if (action == null) throw new ArgumentNullException(nameof(action));
-
-            Func<dynamic, Task> handler = message => action(message);
-
-            Received += handler;
+            _messageDispatcher.AddHandler<THandler>();
 
             return this;
         }
@@ -78,7 +66,7 @@ namespace EasyRabbitMQ.Subscribe
                 consumer: Consumer);
         }
 
-        protected virtual async void ConsumerOnReceived(object sender, BasicDeliverEventArgs ea)
+        private async void ConsumerOnReceived(object sender, BasicDeliverEventArgs ea)
         {
             var consumer = (EventingBasicConsumer)sender;
             var channel = consumer.Model;
@@ -89,7 +77,7 @@ namespace EasyRabbitMQ.Subscribe
 
                 var message = MessageFactory.Create(ea, payload);
 
-                await InvokeHandlersAsync(message).ConfigureAwait(false);
+                await _messageDispatcher.DispatchMessageAsync(message).ConfigureAwait(false);
 
                 channel.BasicAck(ea.DeliveryTag, false);
 
@@ -111,18 +99,6 @@ namespace EasyRabbitMQ.Subscribe
             }
 
             channel.BasicNack(ea.DeliveryTag, false, false);
-        }
-
-        private async Task InvokeHandlersAsync(Message<TMessage> message)
-        {
-            var handler = Received;
-            if (handler != null)
-            {
-                foreach (var @delegate in handler.GetInvocationList().Cast<Func<Message<TMessage>, Task>>())
-                {
-                    await @delegate(message).ConfigureAwait(false);
-                }
-            }
         }
 
         private static void EnableFairDispatch(IModel channel)

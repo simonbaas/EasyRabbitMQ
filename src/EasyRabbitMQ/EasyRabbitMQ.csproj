@@ -74,6 +74,7 @@
     <Compile Include="Infrastructure\IConnectionFactory.cs" />
     <Compile Include="Publish\IPublisher.cs" />
     <Compile Include="Subscribe\ExchangeAsyncSubscription.cs" />
+    <Compile Include="Subscribe\IMessageDispatcher.cs" />
     <Compile Include="Subscribe\IReceiveMessages.cs" />
     <Compile Include="Subscribe\IStartable.cs" />
     <Compile Include="Subscribe\ISubscriber.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Infrastructure\MessageProperties.cs" />
     <Compile Include="Publish\Publisher.cs" />
     <Compile Include="Subscribe\ISubscriptionFactory.cs" />
+    <Compile Include="Subscribe\MessageDispatcher.cs" />
     <Compile Include="Subscribe\QueueAsyncSubscription.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

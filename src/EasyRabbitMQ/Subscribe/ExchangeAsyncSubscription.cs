@@ -7,15 +7,15 @@ using ExchangeType = EasyRabbitMQ.Infrastructure.ExchangeType;
 
 namespace EasyRabbitMQ.Subscribe
 {
-    internal class ExchangeAsyncSubscription<T> : AbstractAsyncSubscription<T>
+    internal class ExchangeAsyncSubscription<TMessage> : AbstractAsyncSubscription<TMessage>
     {
         private string _queue;
         private IModel _channel;
 
-        internal ExchangeAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory, 
-            IMessageHandlerActivator messageHandlerActivator, IMessageRetryHandler messageRetryHandler,
+        internal ExchangeAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
+            IMessageDispatcher<TMessage> messageDispatcher, IMessageRetryHandler messageRetryHandler,
             string exchange, string queue, string routingKey, ExchangeType exchangeType) 
-            : base(channel, serializer, loggerFactory, messageHandlerActivator, messageRetryHandler)
+            : base(channel, serializer, loggerFactory, messageDispatcher, messageRetryHandler)
         {
             Initialize(exchange, queue, routingKey, exchangeType);
         }
