@@ -51,7 +51,7 @@
     <Compile Include="Extensions\HeadersExtensions.cs" />
     <Compile Include="Infrastructure\BuiltInHandlerActivator.cs" />
     <Compile Include="Infrastructure\ExchangeType.cs" />
-    <Compile Include="Infrastructure\IHandleMessagesAsync.cs" />
+    <Compile Include="Infrastructure\IHandleMessages.cs" />
     <Compile Include="Infrastructure\IHandlerActivator.cs" />
     <Compile Include="Infrastructure\ITransactionContext.cs" />
     <Compile Include="Infrastructure\Message.cs" />

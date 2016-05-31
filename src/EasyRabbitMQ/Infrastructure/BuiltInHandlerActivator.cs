@@ -7,7 +7,7 @@ namespace EasyRabbitMQ.Infrastructure
     {
         private readonly ConcurrentDictionary<Type, dynamic> _types = new ConcurrentDictionary<Type, dynamic>(); 
 
-        public THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessagesAsync<TMessage>
+        public THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessages<TMessage>
         {
             if (transactionContext == null) throw new ArgumentNullException(nameof(transactionContext));
 

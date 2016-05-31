@@ -22,7 +22,7 @@ namespace EasyRabbitMQ.Subscribe
             RegisterHandler(action);
         }
 
-        public void AddHandler<THandler>() where THandler : IHandleMessagesAsync<TMessage>
+        public void AddHandler<THandler>() where THandler : IHandleMessages<TMessage>
         {
             var handler = _activator.Get<TMessage, THandler>(_transactionContext);
 

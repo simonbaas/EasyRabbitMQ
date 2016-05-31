@@ -2,7 +2,7 @@
 
 namespace EasyRabbitMQ.Infrastructure
 {
-    public interface IHandleMessagesAsync<T>
+    public interface IHandleMessages<T>
     {
         Task HandleAsync(Message<T> message);
     }

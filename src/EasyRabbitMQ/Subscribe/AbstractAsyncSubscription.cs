@@ -40,7 +40,7 @@ namespace EasyRabbitMQ.Subscribe
             return this;
         }
 
-        public ISubscription<TMessage> AddHandler<THandler>() where THandler : IHandleMessagesAsync<TMessage>
+        public ISubscription<TMessage> AddHandler<THandler>() where THandler : IHandleMessages<TMessage>
         {
             _messageDispatcher.AddHandler<THandler>();
 

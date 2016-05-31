@@ -2,6 +2,6 @@
 {
     public interface IHandlerActivator
     {
-        THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessagesAsync<TMessage>;
+        THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessages<TMessage>;
     }
 }

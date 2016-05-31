@@ -19,8 +19,10 @@ namespace EasyRabbitMQ.Autofac
             _container = container;
         }
 
-        public THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessagesAsync<TMessage>
+        public THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessages<TMessage>
         {
+            if (transactionContext == null) throw new ArgumentNullException(nameof(transactionContext));
+
             var lifetimeScope = _container.BeginLifetimeScope();
 
             transactionContext.OnDisposed(() => lifetimeScope.Dispose());

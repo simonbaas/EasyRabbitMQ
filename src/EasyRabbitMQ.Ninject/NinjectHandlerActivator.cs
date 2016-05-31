@@ -15,8 +15,10 @@ namespace EasyRabbitMQ.Ninject
             _kernel = kernel;
         }
 
-        public THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessagesAsync<TMessage>
+        public THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessages<TMessage>
         {
+            if (transactionContext == null) throw new ArgumentNullException(nameof(transactionContext));
+
             var block = _kernel.BeginBlock();
 
             transactionContext.OnDisposed(() => block.Dispose());
