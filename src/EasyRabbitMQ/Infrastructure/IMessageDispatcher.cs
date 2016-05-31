@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EasyRabbitMQ.Infrastructure;
 
-namespace EasyRabbitMQ.Subscribe
+namespace EasyRabbitMQ.Infrastructure
 {
     internal interface IMessageDispatcher<TMessage> : IDisposable
     {

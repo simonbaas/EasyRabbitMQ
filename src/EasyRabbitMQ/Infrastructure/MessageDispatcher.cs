@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EasyRabbitMQ.Infrastructure;
 
-namespace EasyRabbitMQ.Subscribe
+namespace EasyRabbitMQ.Infrastructure
 {
     internal class MessageDispatcher<TMessage> : IMessageDispatcher<TMessage>
     {
