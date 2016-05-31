@@ -33,14 +33,14 @@ namespace EasyRabbitMQ.Subscribe
         protected abstract IModel GetChannel();
         protected abstract string GetQueue();
 
-        public ISubscription<TMessage> AddHandler(Func<Message<TMessage>, Task> action)
+        public ISubscription<TMessage> HandleWith(Func<Message<TMessage>, Task> action)
         {
             _messageDispatcher.AddHandler(action);
 
             return this;
         }
 
-        public ISubscription<TMessage> AddHandler<THandler>() where THandler : IHandleMessages<TMessage>
+        public ISubscription<TMessage> HandleWith<THandler>() where THandler : IHandleMessages<TMessage>
         {
             _messageDispatcher.AddHandler<THandler>();
 

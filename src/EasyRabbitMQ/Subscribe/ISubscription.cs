@@ -6,7 +6,7 @@ namespace EasyRabbitMQ.Subscribe
 {
     public interface ISubscription<TMessage>
     {
-        ISubscription<TMessage> AddHandler(Func<Message<TMessage>, Task> action);
-        ISubscription<TMessage> AddHandler<THandler>() where THandler : IHandleMessages<TMessage>;
+        ISubscription<TMessage> HandleWith(Func<Message<TMessage>, Task> action);
+        ISubscription<TMessage> HandleWith<THandler>() where THandler : IHandleMessages<TMessage>;
     }
 }
