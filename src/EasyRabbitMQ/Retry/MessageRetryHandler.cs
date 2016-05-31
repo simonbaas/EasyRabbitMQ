@@ -14,15 +14,14 @@ namespace EasyRabbitMQ.Retry
         private readonly int _maxNumberOfRetries;
         private readonly Channel _channel;
         private EventingBasicConsumer _consumer;
-        private readonly ILogger _logger;
+        private readonly ILogger _logger = LogManager.GetLogger(typeof (MessageRetryHandler));
 
-        public MessageRetryHandler(IChannelFactory channelFactory, ILoggerFactory loggerFactory, int maxNumberOfRetries)
+        public MessageRetryHandler(IChannelFactory channelFactory, int maxNumberOfRetries)
         {
             if (maxNumberOfRetries <= 0) return;
 
             _maxNumberOfRetries = maxNumberOfRetries;
             _channel = channelFactory.CreateChannel();
-            _logger = loggerFactory.GetLogger<MessageRetryHandler>();
 
             Initialize();
         }

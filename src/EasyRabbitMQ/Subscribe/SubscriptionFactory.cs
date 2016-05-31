@@ -10,16 +10,14 @@ namespace EasyRabbitMQ.Subscribe
     {
         private readonly IChannelFactory _channelFactory;
         private readonly ISerializer _serializer;
-        private readonly ILoggerFactory _loggerFactory;
         private readonly IHandlerActivator _handlerActivator;
         private readonly IMessageRetryHandler _messageRetryHandler;
 
-        internal SubscriptionFactory(IChannelFactory channelFactory, ISerializer serializer, ILoggerFactory loggerFactory,
-            IHandlerActivator handlerActivator, IMessageRetryHandler messageRetryHandler)
+        internal SubscriptionFactory(IChannelFactory channelFactory, ISerializer serializer, IHandlerActivator handlerActivator, 
+            IMessageRetryHandler messageRetryHandler)
         {
             _channelFactory = channelFactory;
             _serializer = serializer;
-            _loggerFactory = loggerFactory;
             _handlerActivator = handlerActivator;
             _messageRetryHandler = messageRetryHandler;
         }
@@ -30,7 +28,7 @@ namespace EasyRabbitMQ.Subscribe
 
             var channel = _channelFactory.CreateChannel();
             var messageDispatcher = new MessageDispatcher<TMessage>(_handlerActivator);
-            return new QueueAsyncSubscription<TMessage>(channel, _serializer, _loggerFactory, messageDispatcher, _messageRetryHandler, queue);
+            return new QueueAsyncSubscription<TMessage>(channel, _serializer, messageDispatcher, _messageRetryHandler, queue);
         }
 
         public AbstractAsyncSubscription<TMessage> SubscribeExchange<TMessage>(string exchange, string queue, string routingKey, ExchangeType exchangeType)
@@ -41,7 +39,7 @@ namespace EasyRabbitMQ.Subscribe
 
             var channel = _channelFactory.CreateChannel();
             var messageDispatcher = new MessageDispatcher<TMessage>(_handlerActivator);
-            return new ExchangeAsyncSubscription<TMessage>(channel, _serializer, _loggerFactory, messageDispatcher, _messageRetryHandler,
+            return new ExchangeAsyncSubscription<TMessage>(channel, _serializer, messageDispatcher, _messageRetryHandler,
                 exchange, queue, routingKey, exchangeType);
         }
     }
