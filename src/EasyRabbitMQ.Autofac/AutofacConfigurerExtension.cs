@@ -10,9 +10,7 @@ namespace EasyRabbitMQ.Autofac
         {
             if (container == null) throw new ArgumentNullException(nameof(container));
 
-            configurer.Use(new AutofacHandlerActivator(container));
-
-            return configurer;
+            return configurer.Use(new AutofacHandlerActivator(container));
         }
     }
 }

@@ -6,9 +6,7 @@ namespace EasyRabbitMQ.Log4Net
     {
         public static EasyRabbitMQConfigurer UseLog4Net(this EasyRabbitMQConfigurer configurer)
         {
-            configurer.Use(new Log4NetLoggerFactory());
-
-            return configurer;
+            return configurer.Use(new Log4NetLoggerFactory());
         }
     }
 }

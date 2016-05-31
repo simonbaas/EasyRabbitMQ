@@ -22,25 +22,31 @@ namespace EasyRabbitMQ.Configuration
             ChannelFactory = new ChannelFactory(new ConnectionFactory(connectionString));
         }
 
-        public void Use(ISerializer serializer)
+        public EasyRabbitMQConfigurer Use(ISerializer serializer)
         {
             if (serializer == null) throw new ArgumentNullException(nameof(serializer));
 
             Serializer = serializer;
+
+            return this;
         }
 
-        public void Use(IHandlerActivator handlerActivator)
+        public EasyRabbitMQConfigurer Use(IHandlerActivator handlerActivator)
         {
             if (handlerActivator == null) throw new ArgumentNullException(nameof(handlerActivator));
 
             HandlerActivator = handlerActivator;
+
+            return this;
         }
 
-        public void Use(ILoggerFactory loggerFactory)
+        public EasyRabbitMQConfigurer Use(ILoggerFactory loggerFactory)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
             LoggerFactory = loggerFactory;
+
+            return this;
         }
 
         public IPublisher AsPublisher()

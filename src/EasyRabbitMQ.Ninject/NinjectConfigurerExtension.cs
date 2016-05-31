@@ -10,9 +10,7 @@ namespace EasyRabbitMQ.Ninject
         {
             if (kernel == null) throw new ArgumentNullException(nameof(kernel));
 
-            configurer.Use(new NinjectHandlerActivator(kernel));
-
-            return configurer;
+            return configurer.Use(new NinjectHandlerActivator(kernel));
         }
     }
 }
