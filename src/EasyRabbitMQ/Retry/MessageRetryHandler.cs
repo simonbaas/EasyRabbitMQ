@@ -13,6 +13,7 @@ namespace EasyRabbitMQ.Retry
     {
         private readonly int _maxNumberOfRetries;
         private readonly Channel _channel;
+        private EventingBasicConsumer _consumer;
         private readonly ILogger _logger;
 
         public MessageRetryHandler(IChannelFactory channelFactory, ILoggerFactory loggerFactory, int maxNumberOfRetries)
@@ -88,13 +89,13 @@ namespace EasyRabbitMQ.Retry
                     {MessageTtlHeaderKey, RetryDelay }
                 });
 
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += ConsumerOnReceived;
+            _consumer = new EventingBasicConsumer(channel);
+            _consumer.Received += ConsumerOnReceived;
 
             channel.BasicConsume(
                 queue: RetryQueue,
                 noAck: false,
-                consumer: consumer);
+                consumer: _consumer);
         }
 
         private void ConsumerOnReceived(object sender, BasicDeliverEventArgs ea)
@@ -129,6 +130,12 @@ namespace EasyRabbitMQ.Retry
             {
                 if (disposing)
                 {
+                    if (_consumer != null)
+                    {
+                        _consumer.Received -= ConsumerOnReceived;
+                        _consumer = null;
+                    }
+
                     _channel?.Dispose();
                 }
 
