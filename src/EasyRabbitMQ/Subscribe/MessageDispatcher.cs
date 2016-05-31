@@ -7,10 +7,12 @@ namespace EasyRabbitMQ.Subscribe
 {
     internal class MessageDispatcher<TMessage> : IMessageDispatcher<TMessage>
     {
-        private readonly IMessageHandlerActivator _activator;
         public event Func<Message<TMessage>, Task> Received;
 
-        public MessageDispatcher(IMessageHandlerActivator activator)
+        private readonly IHandlerActivator _activator;
+        private readonly ITransactionContext _transactionContext = new TransactionContext();
+
+        public MessageDispatcher(IHandlerActivator activator)
         {
             _activator = activator;
         }
@@ -22,7 +24,7 @@ namespace EasyRabbitMQ.Subscribe
 
         public void AddHandler<THandler>() where THandler : IHandleMessagesAsync<TMessage>
         {
-            var handler = _activator.Get<TMessage, THandler>();
+            var handler = _activator.Get<TMessage, THandler>(_transactionContext);
 
             if (handler == null) throw new InvalidOperationException($"Could not resolve handler of type '{typeof(THandler)}'.");
 
@@ -47,6 +49,26 @@ namespace EasyRabbitMQ.Subscribe
                 {
                     await @delegate(message).ConfigureAwait(false);
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _disposedValue;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _transactionContext?.Dispose();
+                }
+
+                _disposedValue = true;
             }
         }
     }

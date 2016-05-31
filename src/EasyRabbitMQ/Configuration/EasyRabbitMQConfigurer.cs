@@ -14,7 +14,7 @@ namespace EasyRabbitMQ.Configuration
         internal IMessageRetryHandler MessageRetryHandler { get; private set; }
 
         internal ISerializer Serializer { get; private set; } = new DefaultJsonSerializer();
-        internal IMessageHandlerActivator MessageHandlerActivator { get; private set; } = new BuiltInMessageHandlerActivator();
+        internal IHandlerActivator HandlerActivator { get; private set; } = new BuiltInHandlerActivator();
         internal ILoggerFactory LoggerFactory { get; private set; } = new NullLoggerFactory();
 
         internal EasyRabbitMQConfigurer(string connectionString)
@@ -29,11 +29,11 @@ namespace EasyRabbitMQ.Configuration
             Serializer = serializer;
         }
 
-        public void Use(IMessageHandlerActivator messageHandlerActivator)
+        public void Use(IHandlerActivator handlerActivator)
         {
-            if (messageHandlerActivator == null) throw new ArgumentNullException(nameof(messageHandlerActivator));
+            if (handlerActivator == null) throw new ArgumentNullException(nameof(handlerActivator));
 
-            MessageHandlerActivator = messageHandlerActivator;
+            HandlerActivator = handlerActivator;
         }
 
         public void Use(ILoggerFactory loggerFactory)

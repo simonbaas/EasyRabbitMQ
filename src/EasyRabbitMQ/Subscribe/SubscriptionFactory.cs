@@ -11,16 +11,16 @@ namespace EasyRabbitMQ.Subscribe
         private readonly IChannelFactory _channelFactory;
         private readonly ISerializer _serializer;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly IMessageHandlerActivator _messageHandlerActivator;
+        private readonly IHandlerActivator _handlerActivator;
         private readonly IMessageRetryHandler _messageRetryHandler;
 
         internal SubscriptionFactory(IChannelFactory channelFactory, ISerializer serializer, ILoggerFactory loggerFactory,
-            IMessageHandlerActivator messageHandlerActivator, IMessageRetryHandler messageRetryHandler)
+            IHandlerActivator handlerActivator, IMessageRetryHandler messageRetryHandler)
         {
             _channelFactory = channelFactory;
             _serializer = serializer;
             _loggerFactory = loggerFactory;
-            _messageHandlerActivator = messageHandlerActivator;
+            _handlerActivator = handlerActivator;
             _messageRetryHandler = messageRetryHandler;
         }
 
@@ -29,7 +29,7 @@ namespace EasyRabbitMQ.Subscribe
             if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
 
             var channel = _channelFactory.CreateChannel();
-            var messageDispatcher = new MessageDispatcher<TMessage>(_messageHandlerActivator);
+            var messageDispatcher = new MessageDispatcher<TMessage>(_handlerActivator);
             return new QueueAsyncSubscription<TMessage>(channel, _serializer, _loggerFactory, messageDispatcher, _messageRetryHandler, queue);
         }
 
@@ -40,7 +40,7 @@ namespace EasyRabbitMQ.Subscribe
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
 
             var channel = _channelFactory.CreateChannel();
-            var messageDispatcher = new MessageDispatcher<TMessage>(_messageHandlerActivator);
+            var messageDispatcher = new MessageDispatcher<TMessage>(_handlerActivator);
             return new ExchangeAsyncSubscription<TMessage>(channel, _serializer, _loggerFactory, messageDispatcher, _messageRetryHandler,
                 exchange, queue, routingKey, exchangeType);
         }

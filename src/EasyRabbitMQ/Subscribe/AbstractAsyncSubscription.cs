@@ -125,6 +125,7 @@ namespace EasyRabbitMQ.Subscribe
                     }
 
                     _messageRetryHandler?.Dispose();
+                    _messageDispatcher?.Dispose();
                     Channel?.Dispose();
                 }
 

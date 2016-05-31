@@ -49,10 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\HeadersExtensions.cs" />
-    <Compile Include="Infrastructure\BuiltInMessageHandlerActivator.cs" />
+    <Compile Include="Infrastructure\BuiltInHandlerActivator.cs" />
     <Compile Include="Infrastructure\ExchangeType.cs" />
     <Compile Include="Infrastructure\IHandleMessagesAsync.cs" />
-    <Compile Include="Infrastructure\IMessageHandlerActivator.cs" />
+    <Compile Include="Infrastructure\IHandlerActivator.cs" />
+    <Compile Include="Infrastructure\ITransactionContext.cs" />
     <Compile Include="Infrastructure\Message.cs" />
     <Compile Include="Infrastructure\MessageFactory.cs" />
     <Compile Include="Logging\AbstractLoggerFactory.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Subscribe\SubscriptionFactory.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="EasyRabbitMQ.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
