@@ -12,26 +12,25 @@ namespace EasyRabbitMQ.Subscribe
     internal abstract class AbstractAsyncSubscription<TMessage> : ISubscription<TMessage>, IStartable
     {
         protected Channel Channel { get; }
-        protected ISerializer Serializer { get; }
-        protected EventingBasicConsumer Consumer { get; private set; }
 
+        private readonly ISerializer _serializer;
         private readonly IMessageDispatcher<TMessage> _messageDispatcher; 
         private readonly IMessageRetryHandler _messageRetryHandler;
         private readonly ILogger _logger;
+        private EventingBasicConsumer _consumer;
 
         protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
             IMessageDispatcher<TMessage> messageDispatcher, IMessageRetryHandler messageRetryHandler)
         {
             Channel = channel;
-            Serializer = serializer;
 
+            _serializer = serializer;
             _messageDispatcher = messageDispatcher;
             _messageRetryHandler = messageRetryHandler;
             _logger = loggerFactory.GetLogger(typeof (AbstractAsyncSubscription<>));
         }
 
-        protected abstract IModel GetChannel();
-        protected abstract string GetQueue();
+        protected abstract string GetQueueName();
 
         public ISubscription<TMessage> HandleWith(Func<Message<TMessage>, Task> action)
         {
@@ -49,21 +48,21 @@ namespace EasyRabbitMQ.Subscribe
 
         public void Start()
         {
-            var channel = GetChannel();
-            var queue = GetQueue();
+            var channel = Channel.Instance;
+            var queueName = GetQueueName();
 
             if (channel == null) throw new InvalidOperationException("channel is invalid");
-            if (string.IsNullOrWhiteSpace(queue)) throw new InvalidOperationException("queue is invalid");
+            if (string.IsNullOrWhiteSpace(queueName)) throw new InvalidOperationException("queueName is invalid");
 
             EnableFairDispatch(channel);
 
-            Consumer = new EventingBasicConsumer(channel);
-            Consumer.Received += ConsumerOnReceived;
+            _consumer = new EventingBasicConsumer(channel);
+            _consumer.Received += ConsumerOnReceived;
 
             channel.BasicConsume(
-                queue: queue,
+                queue: queueName,
                 noAck: false,
-                consumer: Consumer);
+                consumer: _consumer);
         }
 
         private async void ConsumerOnReceived(object sender, BasicDeliverEventArgs ea)
@@ -73,7 +72,7 @@ namespace EasyRabbitMQ.Subscribe
 
             try
             {
-                var payload = Serializer.Deserialize<TMessage>(ea.Body);
+                var payload = _serializer.Deserialize<TMessage>(ea.Body);
 
                 var message = MessageFactory.Create(ea, payload);
 
@@ -87,7 +86,7 @@ namespace EasyRabbitMQ.Subscribe
             {
                 channel.BasicAck(ea.DeliveryTag, false);
 
-                _logger.Error($"Failed to process message received from queue '{GetQueue()}'. Retrying message.", ex);
+                _logger.Error($"Failed to process message received from queue '{GetQueueName()}'. Retrying message.", ex);
 
                 _messageRetryHandler.RetryMessage(ea);
 
@@ -95,7 +94,7 @@ namespace EasyRabbitMQ.Subscribe
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to process message received from queue '{GetQueue()}'.", ex);
+                _logger.Error($"Failed to process message received from queue '{GetQueueName()}'.", ex);
             }
 
             channel.BasicNack(ea.DeliveryTag, false, false);
@@ -119,9 +118,10 @@ namespace EasyRabbitMQ.Subscribe
             {
                 if (disposing)
                 {
-                    if (Consumer != null)
+                    if (_consumer != null)
                     {
-                        Consumer.Received -= ConsumerOnReceived;
+                        _consumer.Received -= ConsumerOnReceived;
+                        _consumer = null;
                     }
 
                     _messageRetryHandler?.Dispose();

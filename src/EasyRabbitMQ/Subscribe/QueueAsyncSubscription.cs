@@ -8,39 +8,34 @@ namespace EasyRabbitMQ.Subscribe
 {
     internal class QueueAsyncSubscription<TMessage> : AbstractAsyncSubscription<TMessage>
     {
-        private readonly string _queue;
+        private readonly string _queueName;
         private IModel _channel;
 
         internal QueueAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
             IMessageDispatcher<TMessage> messageDispatcher, IMessageRetryHandler messageRetryHandler,
-            string queue)
+            string queueName)
             : base(channel, serializer, loggerFactory, messageDispatcher, messageRetryHandler)
         {
-            _queue = queue;
+            _queueName = queueName;
 
-            Initialize();
+            Initialize(queueName);
         }
 
-        private void Initialize()
+        private void Initialize(string queueName)
         {
             _channel = Channel.Instance;
 
             _channel.QueueDeclare(
-                queue: _queue,
+                queue: queueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
         }
 
-        protected override IModel GetChannel()
+        protected override string GetQueueName()
         {
-            return _channel;
-        }
-
-        protected override string GetQueue()
-        {
-            return _queue;
+            return _queueName;
         }
     }
 }

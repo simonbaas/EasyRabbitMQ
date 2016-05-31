@@ -2,25 +2,22 @@
 using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
-using RabbitMQ.Client;
-using ExchangeType = EasyRabbitMQ.Infrastructure.ExchangeType;
 
 namespace EasyRabbitMQ.Subscribe
 {
     internal class ExchangeAsyncSubscription<TMessage> : AbstractAsyncSubscription<TMessage>
     {
-        private string _queue;
-        private IModel _channel;
+        private string _queueName;
 
         internal ExchangeAsyncSubscription(Channel channel, ISerializer serializer, ILoggerFactory loggerFactory,
             IMessageDispatcher<TMessage> messageDispatcher, IMessageRetryHandler messageRetryHandler,
-            string exchange, string queue, string routingKey, ExchangeType exchangeType) 
+            string exchange, string queueName, string routingKey, ExchangeType exchangeType) 
             : base(channel, serializer, loggerFactory, messageDispatcher, messageRetryHandler)
         {
-            Initialize(exchange, queue, routingKey, exchangeType);
+            Initialize(exchange, queueName, routingKey, exchangeType);
         }
 
-        private void Initialize(string exchange, string queue, string routingKey, ExchangeType exchangeType)
+        private void Initialize(string exchange, string queueName, string routingKey, ExchangeType exchangeType)
         {
             var channel = Channel.Instance;
 
@@ -31,36 +28,30 @@ namespace EasyRabbitMQ.Subscribe
                 autoDelete: false,
                 arguments: null);
 
-            var queueExclusive = queue == "";
+            var queueExclusive = queueName == "";
             var queueAutoDelete = queueExclusive;
             var queueDurable = !queueAutoDelete;
 
             var queueOk = channel.QueueDeclare(
-                queue: queue,
+                queue: queueName,
                 durable: queueDurable,
                 exclusive: queueExclusive,
                 autoDelete: queueAutoDelete,
                 arguments: null);
 
-            queue = queueOk.QueueName;
+            queueName = queueOk.QueueName;
 
             channel.QueueBind(
-                queue: queue,
+                queue: queueName,
                 exchange: exchange,
                 routingKey: routingKey);
 
-            _queue = queue;
-            _channel = channel;
+            _queueName = queueName;
         }
 
-        protected override IModel GetChannel()
+        protected override string GetQueueName()
         {
-            return _channel;
-        }
-
-        protected override string GetQueue()
-        {
-            return _queue;
+            return _queueName;
         }
     }
 }
