@@ -11,7 +11,7 @@ namespace EasyRabbitMQ.Infrastructure
         private readonly IHandlerActivator _activator;
         private readonly ITransactionContext _transactionContext = new TransactionContext();
 
-        public MessageDispatcher(IHandlerActivator activator)
+        internal MessageDispatcher(IHandlerActivator activator)
         {
             _activator = activator;
         }

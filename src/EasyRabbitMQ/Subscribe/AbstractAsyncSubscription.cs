@@ -18,7 +18,7 @@ namespace EasyRabbitMQ.Subscribe
         private readonly ILogger _logger = LogManager.GetLogger(typeof (AbstractAsyncSubscription<>));
         private EventingBasicConsumer _consumer;
 
-        protected AbstractAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
+        protected internal AbstractAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
             IMessageRetryHandler messageRetryHandler)
         {
             Channel = channel;

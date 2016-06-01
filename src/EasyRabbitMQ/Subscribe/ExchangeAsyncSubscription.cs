@@ -8,7 +8,7 @@ namespace EasyRabbitMQ.Subscribe
     {
         private string _queueName;
 
-        internal ExchangeAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
+        protected internal ExchangeAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
             IMessageRetryHandler messageRetryHandler, string exchange, string queueName, string routingKey, ExchangeType exchangeType) 
             : base(channel, serializer, messageDispatcher, messageRetryHandler)
         {

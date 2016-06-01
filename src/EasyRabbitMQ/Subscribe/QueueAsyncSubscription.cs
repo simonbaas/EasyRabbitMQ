@@ -10,7 +10,7 @@ namespace EasyRabbitMQ.Subscribe
         private readonly string _queueName;
         private IModel _channel;
 
-        internal QueueAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
+        protected internal QueueAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
             IMessageRetryHandler messageRetryHandler, string queueName)
             : base(channel, serializer, messageDispatcher, messageRetryHandler)
         {

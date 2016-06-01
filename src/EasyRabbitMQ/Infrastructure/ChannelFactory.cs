@@ -3,7 +3,8 @@
     internal class ChannelFactory : IChannelFactory
     {
         private readonly IConnectionFactory _connectionFactory;
-        public ChannelFactory(IConnectionFactory connectionFactory)
+
+        internal ChannelFactory(IConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
         }

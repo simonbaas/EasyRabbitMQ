@@ -17,7 +17,7 @@ namespace EasyRabbitMQ.Retry
         private EventingBasicConsumer _consumer;
         private readonly ILogger _logger = LogManager.GetLogger(typeof (MessageRetryHandler));
 
-        public MessageRetryHandler(Channel channel)
+        internal MessageRetryHandler(Channel channel)
         {
             _channel = channel;
 
