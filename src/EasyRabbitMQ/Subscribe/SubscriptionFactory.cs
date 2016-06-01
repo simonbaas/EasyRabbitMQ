@@ -1,6 +1,5 @@
 using System;
 using EasyRabbitMQ.Infrastructure;
-using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
 
