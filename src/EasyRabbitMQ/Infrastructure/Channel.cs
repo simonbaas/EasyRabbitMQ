@@ -9,11 +9,16 @@ namespace EasyRabbitMQ.Infrastructure
 
         private IConnection _connection;
 
-        public Channel(IConnection connection, IModel channel)
+        internal Channel(IConnection connection, IModel channel)
         {
             _connection = connection;
 
             Instance = channel;
+        }
+
+        internal void EnableFairDispatch()
+        {
+            Instance?.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
         }
 
         public void Dispose()
