@@ -16,7 +16,7 @@ namespace EasyRabbitMQ.Subscribe
         internal Subscriber(EasyRabbitMQConfigurer configurer)
         {
             _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer, configurer.HandlerActivator, 
-                configurer.MessageRetryHandler);
+                configurer.MessageRetryHandlerFactory);
         }
 
         public ISubscription<TMessage> Queue<TMessage>(string queue)

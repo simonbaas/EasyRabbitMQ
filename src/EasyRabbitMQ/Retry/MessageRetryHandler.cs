@@ -17,13 +17,11 @@ namespace EasyRabbitMQ.Retry
         private EventingBasicConsumer _consumer;
         private readonly ILogger _logger = LogManager.GetLogger(typeof (MessageRetryHandler));
 
-        public MessageRetryHandler(IChannelFactory channelFactory)
+        public MessageRetryHandler(Channel channel)
         {
-            _channel = channelFactory.CreateChannel();
+            _channel = channel;
 
             _channel.EnableFairDispatch();
-
-            Initialize();
         }
 
         public void SetMaxNumberOfRetries(int maxNumberOfRetries)
@@ -103,6 +101,8 @@ namespace EasyRabbitMQ.Retry
         public void Start()
         {
             if (_maxNumberOfRetries <= 0) return;
+
+            Initialize();
 
             var channel = _channel.Instance;
 

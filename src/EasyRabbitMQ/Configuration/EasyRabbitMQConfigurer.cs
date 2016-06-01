@@ -11,13 +11,14 @@ namespace EasyRabbitMQ.Configuration
     public class EasyRabbitMQConfigurer
     {
         internal IChannelFactory ChannelFactory { get; }
-        internal IMessageRetryHandler MessageRetryHandler { get; private set; }
+        internal IMessageRetryHandlerFactory MessageRetryHandlerFactory { get; private set; }
         internal ISerializer Serializer { get; private set; } = new DefaultJsonSerializer();
         internal IHandlerActivator HandlerActivator { get; private set; } = new BuiltInHandlerActivator();
 
         internal EasyRabbitMQConfigurer(string connectionString)
         {
             ChannelFactory = new ChannelFactory(new ConnectionFactory(connectionString));
+            MessageRetryHandlerFactory = new MessageRetryHandlerFactory(ChannelFactory);
         }
 
         public EasyRabbitMQConfigurer Use(ISerializer serializer)
@@ -54,8 +55,6 @@ namespace EasyRabbitMQ.Configuration
 
         public ISubscriber AsSubscriber()
         {
-            MessageRetryHandler = new MessageRetryHandler(ChannelFactory);
-
             return new Subscriber(this);
         }
     }
