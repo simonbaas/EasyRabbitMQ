@@ -4,7 +4,6 @@ using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
-using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace EasyRabbitMQ.Subscribe
@@ -24,12 +23,30 @@ namespace EasyRabbitMQ.Subscribe
         {
             Channel = channel;
 
+            Channel.EnableFairDispatch();
+
             _serializer = serializer;
             _messageDispatcher = messageDispatcher;
             _messageRetryHandler = messageRetryHandler;
         }
 
         protected abstract string GetQueueName();
+
+        public ISubscription<TMessage> EnableRetry(int numberOfRetries)
+        {
+            _messageRetryHandler.SetMaxNumberOfRetries(numberOfRetries);
+
+            return this;
+        }
+
+        public ISubscription<TMessage> UseFailureQueue(string failureQueue)
+        {
+            if (string.IsNullOrWhiteSpace(failureQueue)) throw new ArgumentNullException(nameof(failureQueue));
+
+            _messageRetryHandler.SetFailureQueue(failureQueue);
+
+            return this;
+        }
 
         public ISubscription<TMessage> HandleWith(Func<Message<TMessage>, Task> action)
         {
@@ -53,7 +70,7 @@ namespace EasyRabbitMQ.Subscribe
             if (channel == null) throw new InvalidOperationException("channel is invalid");
             if (string.IsNullOrWhiteSpace(queueName)) throw new InvalidOperationException("queueName is invalid");
 
-            EnableFairDispatch(channel);
+            _messageRetryHandler.Start();
 
             _consumer = new EventingBasicConsumer(channel);
             _consumer.Received += ConsumerOnReceived;
@@ -78,8 +95,6 @@ namespace EasyRabbitMQ.Subscribe
                 await _messageDispatcher.DispatchMessageAsync(message).ConfigureAwait(false);
 
                 channel.BasicAck(ea.DeliveryTag, false);
-
-                return;
             }
             catch (Exception ex) when (_messageRetryHandler.ShouldRetryMessage(ea))
             {
@@ -88,20 +103,22 @@ namespace EasyRabbitMQ.Subscribe
                 _logger.Error($"Failed to process message received from queue '{GetQueueName()}'. Retrying message.", ex);
 
                 _messageRetryHandler.RetryMessage(ea);
+            }
+            catch (Exception ex) when (_messageRetryHandler.ShouldSendToFailureQueue())
+            {
+                channel.BasicAck(ea.DeliveryTag, false);
 
-                return;
+                _logger.Error($"Failed to process message received from queue '{GetQueueName()}'. Message will be sent to failure queue.", ex);
+
+                _messageRetryHandler.SendToFailureQueue(ea);
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to process message received from queue '{GetQueueName()}'.", ex);
+                _logger.Error($"Failed to process message received from queue '{GetQueueName()}'. Message could potentially be lost. " +
+                              "Check dead letter queue if configured.", ex);
+
+                channel.BasicNack(ea.DeliveryTag, false, false);
             }
-
-            channel.BasicNack(ea.DeliveryTag, false, false);
-        }
-
-        private static void EnableFairDispatch(IModel channel)
-        {
-            channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
         }
 
         public void Dispose()

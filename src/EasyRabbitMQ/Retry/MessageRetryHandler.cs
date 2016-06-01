@@ -11,22 +11,27 @@ namespace EasyRabbitMQ.Retry
 {
     internal class MessageRetryHandler : IMessageRetryHandler
     {
-        private readonly int _maxNumberOfRetries;
+        private int _maxNumberOfRetries;
+        private string _failureQueue;
         private readonly Channel _channel;
         private EventingBasicConsumer _consumer;
         private readonly ILogger _logger = LogManager.GetLogger(typeof (MessageRetryHandler));
 
-        public MessageRetryHandler(IChannelFactory channelFactory, int maxNumberOfRetries)
+        public MessageRetryHandler(IChannelFactory channelFactory)
         {
-            if (maxNumberOfRetries <= 0) return;
-
-            _maxNumberOfRetries = maxNumberOfRetries;
             _channel = channelFactory.CreateChannel();
+
+            _channel.EnableFairDispatch();
 
             Initialize();
         }
 
-        public virtual bool ShouldRetryMessage(BasicDeliverEventArgs ea)
+        public void SetMaxNumberOfRetries(int maxNumberOfRetries)
+        {
+            _maxNumberOfRetries = maxNumberOfRetries > 0 ? maxNumberOfRetries : 0;
+        }
+
+        public bool ShouldRetryMessage(BasicDeliverEventArgs ea)
         {
             if (_maxNumberOfRetries <= 0) return false;
 
@@ -34,7 +39,7 @@ namespace EasyRabbitMQ.Retry
             return retries < _maxNumberOfRetries;
         }
 
-        public virtual void RetryMessage(BasicDeliverEventArgs ea)
+        public void RetryMessage(BasicDeliverEventArgs ea)
         {
             if (_maxNumberOfRetries <= 0) throw new InvalidOperationException("Number of retries must exceed 0 to enable message retry.");
 
@@ -51,8 +56,63 @@ namespace EasyRabbitMQ.Retry
             }
             catch (Exception ex)
             {
-                _logger.Error("Failed to publish message to queue for delayed retry. Message is potentially lost.", ex);
+                _logger.Error($"Failed to publish message to queue for delayed retry. Trying to send message to failure queue '{_failureQueue}'.", ex);
+
+                SendToFailureQueue(ea);
             }
+        }
+
+        public void SetFailureQueue(string failureQueue)
+        {
+            if (string.IsNullOrWhiteSpace(failureQueue)) throw new ArgumentNullException(nameof(failureQueue));
+
+            _failureQueue = failureQueue;
+
+            _channel.Instance.QueueDeclare(
+                queue: failureQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+        }
+
+        public bool ShouldSendToFailureQueue()
+        {
+            return !string.IsNullOrWhiteSpace(_failureQueue);
+        }
+
+        public void SendToFailureQueue(BasicDeliverEventArgs ea)
+        {
+            if (string.IsNullOrWhiteSpace(_failureQueue)) return;
+
+            var headers = ea.BasicProperties.Headers;
+            headers.AddOrUpdate(ExchangeHeaderKey, ea.Exchange);
+            headers.AddOrUpdate(RoutingKeyHeaderKey, ea.RoutingKey);
+            headers?.Remove(XDeathHeaderKey);
+
+            try
+            {
+                _channel.Instance.BasicPublish("", _failureQueue, ea.BasicProperties, ea.Body);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to send message to failure queue '{_failureQueue}'. Message could potentially be lost.", ex);
+            }
+        }
+
+        public void Start()
+        {
+            if (_maxNumberOfRetries <= 0) return;
+
+            var channel = _channel.Instance;
+
+            _consumer = new EventingBasicConsumer(channel);
+            _consumer.Received += ConsumerOnReceived;
+
+            channel.BasicConsume(
+                queue: RetryQueue,
+                noAck: false,
+                consumer: _consumer);
         }
 
         private void Initialize()
@@ -87,14 +147,6 @@ namespace EasyRabbitMQ.Retry
                     {DeadLetterRoutingKeyHeaderKey, RetryRoutingKey},
                     {MessageTtlHeaderKey, RetryDelay }
                 });
-
-            _consumer = new EventingBasicConsumer(channel);
-            _consumer.Received += ConsumerOnReceived;
-
-            channel.BasicConsume(
-                queue: RetryQueue,
-                noAck: false,
-                consumer: _consumer);
         }
 
         private void ConsumerOnReceived(object sender, BasicDeliverEventArgs ea)
@@ -110,9 +162,11 @@ namespace EasyRabbitMQ.Retry
             }
             catch (Exception ex)
             {
-                _logger.Error("Failed to requeue message for retry. Message is potentially lost.", ex);
+                _logger.Error($"Failed to requeue message for retry. Trying to send message to fail queue '{_failureQueue}'.", ex);
 
                 _channel.Instance.BasicNack(ea.DeliveryTag, false, false);
+
+                SendToFailureQueue(ea);
             }
         }
 

@@ -8,6 +8,7 @@
 
         internal const string DeadLetterExchangeHeaderKey = "x-dead-letter-exchange";
         internal const string DeadLetterRoutingKeyHeaderKey = "x-dead-letter-routing-key";
+        internal const string XDeathHeaderKey = "x-death";
         internal const string MessageTtlHeaderKey = "x-message-ttl";
 
         internal const string RetryExchange = "easy.rabbitmq.retry";
