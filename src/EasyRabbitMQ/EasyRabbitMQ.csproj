@@ -48,6 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants\Exchanges.cs" />
+    <Compile Include="Constants\Headers.cs" />
+    <Compile Include="Constants\Queues.cs" />
     <Compile Include="Extensions\HeadersExtensions.cs" />
     <Compile Include="Infrastructure\BuiltInHandlerActivator.cs" />
     <Compile Include="Infrastructure\ExchangeType.cs" />

@@ -5,6 +5,7 @@ using EasyRabbitMQ.Configuration;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
+using Headers = EasyRabbitMQ.Constants.Headers;
 
 namespace EasyRabbitMQ.Publish
 {
@@ -12,9 +13,6 @@ namespace EasyRabbitMQ.Publish
     {
         private readonly ISerializer _serializer;
         private readonly Lazy<Channel> _channel;
-
-        private static readonly KeyValuePair<string, object> ApplicationHeader =
-            new KeyValuePair<string, object>("x-sending-application", "EasyRabbitMQ");
 
         internal Publisher(EasyRabbitMQConfigurer configurer)
         {
@@ -87,7 +85,8 @@ namespace EasyRabbitMQ.Publish
         private static void AddApplicationHeader(IBasicProperties basicProperties)
         {
             if (basicProperties.Headers == null) basicProperties.Headers = new Dictionary<string, object>();
-            basicProperties.Headers.Add(ApplicationHeader);
+            basicProperties.Headers.Add(Headers.MessageId, Guid.NewGuid().ToString());
+            basicProperties.Headers.Add(Headers.CorrelationId, Guid.NewGuid().ToString());
         }
 
         public void Dispose()

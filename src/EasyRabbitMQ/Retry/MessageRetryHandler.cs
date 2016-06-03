@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EasyRabbitMQ.Constants;
 using EasyRabbitMQ.Extensions;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
@@ -33,7 +34,7 @@ namespace EasyRabbitMQ.Retry
         {
             if (_maxNumberOfRetries <= 0) return false;
 
-            var retries = ea.BasicProperties.Headers.Get<int>(RetriesHeaderKey);
+            var retries = ea.BasicProperties.Headers.Get<int>(Headers.Retries);
             return retries < _maxNumberOfRetries;
         }
 
@@ -43,14 +44,14 @@ namespace EasyRabbitMQ.Retry
 
             var headers = ea.BasicProperties.Headers;
 
-            var retries = headers.Get<int>(RetriesHeaderKey) + 1;
-            headers.AddOrUpdate(RetriesHeaderKey, retries);
-            headers.AddOrUpdate(ExchangeHeaderKey, ea.Exchange);
-            headers.AddOrUpdate(RoutingKeyHeaderKey, ea.RoutingKey);
+            var retries = headers.Get<int>(Headers.Retries) + 1;
+            headers.AddOrUpdate(Headers.Retries, retries);
+            headers.AddOrUpdate(Headers.Exchange, ea.Exchange);
+            headers.AddOrUpdate(Headers.RoutingKey, ea.RoutingKey);
 
             try
             {
-                _channel.Instance.BasicPublish("", DelayedQueue, ea.BasicProperties, ea.Body);
+                _channel.Instance.BasicPublish("", Queues.Delayed, ea.BasicProperties, ea.Body);
             }
             catch (Exception ex)
             {
@@ -84,9 +85,10 @@ namespace EasyRabbitMQ.Retry
             if (string.IsNullOrWhiteSpace(_failureQueue)) return;
 
             var headers = ea.BasicProperties.Headers;
-            headers.AddOrUpdate(ExchangeHeaderKey, ea.Exchange);
-            headers.AddOrUpdate(RoutingKeyHeaderKey, ea.RoutingKey);
-            headers?.Remove(XDeathHeaderKey);
+            headers.AddOrUpdate(Headers.Exchange, ea.Exchange);
+            headers.AddOrUpdate(Headers.RoutingKey, ea.RoutingKey);
+            headers?.Remove(Headers.XDeath);
+            headers?.Remove(Headers.Retries);
 
             try
             {
@@ -110,7 +112,7 @@ namespace EasyRabbitMQ.Retry
             _consumer.Received += ConsumerOnReceived;
 
             channel.BasicConsume(
-                queue: RetryQueue,
+                queue: Queues.Retry,
                 noAck: false,
                 consumer: _consumer);
         }
@@ -120,32 +122,32 @@ namespace EasyRabbitMQ.Retry
             var channel = _channel.Instance;
 
             channel.ExchangeDeclare(
-                exchange: RetryExchange,
+                exchange: Exchanges.Retry,
                 type: ExchangeType.Direct,
                 durable: true);
 
             channel.QueueDeclare(
-                queue: RetryQueue,
+                queue: Queues.Retry,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
 
             channel.QueueBind(
-                queue: RetryQueue,
-                exchange: RetryExchange,
+                queue: Queues.Retry,
+                exchange: Exchanges.Retry,
                 routingKey: RetryRoutingKey);
 
             channel.QueueDeclare(
-                queue: DelayedQueue,
+                queue: Queues.Delayed,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: new Dictionary<string, object>
                 {
-                    {DeadLetterExchangeHeaderKey, RetryExchange},
-                    {DeadLetterRoutingKeyHeaderKey, RetryRoutingKey},
-                    {MessageTtlHeaderKey, RetryDelay }
+                    {RabbitMQ.Client.Headers.XDeadLetterExchange, Exchanges.Retry},
+                    {RabbitMQ.Client.Headers.XDeadLetterRoutingKey, RetryRoutingKey},
+                    {RabbitMQ.Client.Headers.XMessageTTL, RetryDelay }
                 });
         }
 
@@ -153,8 +155,8 @@ namespace EasyRabbitMQ.Retry
         {
             try
             {
-                var exchange = ea.BasicProperties.Headers.GetString(ExchangeHeaderKey);
-                var routingKey = ea.BasicProperties.Headers.GetString(RoutingKeyHeaderKey);
+                var exchange = ea.BasicProperties.Headers.GetString(Headers.Exchange);
+                var routingKey = ea.BasicProperties.Headers.GetString(Headers.RoutingKey);
 
                 _channel.Instance.BasicPublish(exchange, routingKey, ea.BasicProperties, ea.Body);
 
