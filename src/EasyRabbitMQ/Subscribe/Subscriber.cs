@@ -19,7 +19,7 @@ namespace EasyRabbitMQ.Subscribe
                 configurer.MessageRetryHandlerFactory);
         }
 
-        public ISubscription<TMessage> Queue<TMessage>(string queue)
+        public ISubscription<TMessage> Queue<TMessage>(string queue) where TMessage : class
         {
             CheckStarted();
 
@@ -29,7 +29,7 @@ namespace EasyRabbitMQ.Subscribe
         }
 
         public ISubscription<TMessage> Exchange<TMessage>(string exchange, string queue = "", string routingKey = "",
-            ExchangeType exchangeType = ExchangeType.Topic)
+            ExchangeType exchangeType = ExchangeType.Topic) where TMessage : class
         {
             CheckStarted();
 

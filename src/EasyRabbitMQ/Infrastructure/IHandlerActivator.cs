@@ -2,6 +2,6 @@
 {
     public interface IHandlerActivator
     {
-        THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessages<TMessage>;
+        IHandleMessages<TMessage> Get<TMessage>(ITransactionContext transactionContext) where TMessage : class;
     }
 }

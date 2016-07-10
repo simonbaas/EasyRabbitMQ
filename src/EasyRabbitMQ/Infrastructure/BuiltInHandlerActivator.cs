@@ -7,19 +7,19 @@ namespace EasyRabbitMQ.Infrastructure
     {
         private readonly ConcurrentDictionary<Type, dynamic> _types = new ConcurrentDictionary<Type, dynamic>();
 
-        public void Register<TMessage, THandler>(Func<THandler> func) where THandler : IHandleMessages<TMessage>
+        public void Register<TMessage>(Func<IHandleMessages<TMessage>> func) where TMessage : class 
         {
-            _types.AddOrUpdate(typeof (THandler), type => func(), (type, o) => func());
+            _types.AddOrUpdate(typeof (TMessage), _ => func(), (t, o) => func());
         }
 
-        public THandler Get<TMessage, THandler>(ITransactionContext transactionContext) where THandler : IHandleMessages<TMessage>
+        public IHandleMessages<TMessage> Get<TMessage>(ITransactionContext transactionContext) where TMessage : class
         {
             if (transactionContext == null) throw new ArgumentNullException(nameof(transactionContext));
 
             dynamic handler;
-            if (!_types.TryGetValue(typeof (THandler), out handler))
+            if (!_types.TryGetValue(typeof (TMessage), out handler))
             {
-                throw new InvalidOperationException($"No handler registered for type '{typeof(THandler)}'. Use Register method to register handlers.");
+                throw new InvalidOperationException($"No handler registered for type '{typeof(TMessage)}'. Use Register method to register handlers.");
             }
 
             transactionContext.OnDisposed(() =>

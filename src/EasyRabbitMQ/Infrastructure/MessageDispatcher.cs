@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace EasyRabbitMQ.Infrastructure
 {
-    internal class MessageDispatcher<TMessage> : IMessageDispatcher<TMessage>
+    internal class MessageDispatcher<TMessage> : IMessageDispatcher<TMessage> where TMessage : class 
     {
         public event Func<Message<TMessage>, Task> Received;
 
@@ -23,7 +23,7 @@ namespace EasyRabbitMQ.Infrastructure
 
         public void AddHandler<THandler>() where THandler : IHandleMessages<TMessage>
         {
-            var handler = _activator.Get<TMessage, THandler>(_transactionContext);
+            var handler = _activator.Get<TMessage>(_transactionContext);
 
             if (handler == null) throw new InvalidOperationException($"Could not resolve handler of type '{typeof(THandler)}'.");
 

@@ -10,9 +10,9 @@ namespace EasyRabbitMQ.Subscribe
 
     public interface ITypedSubscriber
     {
-        ISubscription<TMessage> Queue<TMessage>(string queue);
+        ISubscription<TMessage> Queue<TMessage>(string queue) where TMessage : class;
         ISubscription<TMessage> Exchange<TMessage>(string exchange, string queue = "", string routingKey = "",
-            ExchangeType exchangeType = ExchangeType.Topic);
+            ExchangeType exchangeType = ExchangeType.Topic) where TMessage : class;
     }
 
     public interface IDynamicSubscriber

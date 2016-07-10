@@ -21,7 +21,7 @@ namespace EasyRabbitMQ.Subscribe
             _messageRetryHandlerFactory = messageRetryHandlerFactory;
         }
 
-        public AbstractAsyncSubscription<TMessage> SubscribeQueue<TMessage>(string queue)
+        public AbstractAsyncSubscription<TMessage> SubscribeQueue<TMessage>(string queue) where TMessage : class 
         {
             if (string.IsNullOrEmpty(queue)) throw new ArgumentNullException(nameof(queue));
 
@@ -32,6 +32,7 @@ namespace EasyRabbitMQ.Subscribe
         }
 
         public AbstractAsyncSubscription<TMessage> SubscribeExchange<TMessage>(string exchange, string queue, string routingKey, ExchangeType exchangeType)
+            where TMessage : class 
         {
             if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (queue == null) throw new ArgumentNullException(nameof(queue));
