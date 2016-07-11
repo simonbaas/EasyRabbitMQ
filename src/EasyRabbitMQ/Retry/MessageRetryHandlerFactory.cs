@@ -13,8 +13,7 @@ namespace EasyRabbitMQ.Retry
 
         public IMessageRetryHandler CreateHandler()
         {
-            var channel = _channelFactory.CreateChannel();
-            return new MessageRetryHandler(channel);
+            return new MessageRetryHandler(_channelFactory);
         }
     }
 }
