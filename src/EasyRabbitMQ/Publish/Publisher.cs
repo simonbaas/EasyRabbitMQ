@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using EasyRabbitMQ.Configuration;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
@@ -14,10 +13,10 @@ namespace EasyRabbitMQ.Publish
         private readonly ISerializer _serializer;
         private readonly Lazy<Channel> _channel;
 
-        internal Publisher(EasyRabbitMQConfigurer configurer)
+        public Publisher(ISerializer serializer, IChannelFactory channelFactory)
         {
-            _serializer = configurer.Serializer;
-            _channel = new Lazy<Channel>(() => configurer.ChannelFactory.CreateChannel());
+            _serializer = serializer;
+            _channel = new Lazy<Channel>(channelFactory.CreateChannel);
         }
 
         public void PublishQueue<TMessage>(string queue, TMessage message, MessageProperties messageProperties = null)

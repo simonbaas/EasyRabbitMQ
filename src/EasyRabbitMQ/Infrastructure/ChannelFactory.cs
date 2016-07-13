@@ -4,7 +4,7 @@
     {
         private readonly IConnectionFactory _connectionFactory;
 
-        internal ChannelFactory(IConnectionFactory connectionFactory)
+        public ChannelFactory(IConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
         }

@@ -6,7 +6,7 @@ namespace EasyRabbitMQ.Retry
     {
         private readonly IChannelFactory _channelFactory;
 
-        internal MessageRetryHandlerFactory(IChannelFactory channelFactory)
+        public MessageRetryHandlerFactory(IChannelFactory channelFactory)
         {
             _channelFactory = channelFactory;
         }

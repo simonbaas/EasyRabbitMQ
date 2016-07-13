@@ -12,7 +12,7 @@ namespace EasyRabbitMQ.Subscribe
         private readonly IHandlerActivator _handlerActivator;
         private readonly IMessageRetryHandlerFactory _messageRetryHandlerFactory;
 
-        internal SubscriptionFactory(IChannelFactory channelFactory, ISerializer serializer, IHandlerActivator handlerActivator, 
+        public SubscriptionFactory(IChannelFactory channelFactory, ISerializer serializer, IHandlerActivator handlerActivator, 
             IMessageRetryHandlerFactory messageRetryHandlerFactory)
         {
             _channelFactory = channelFactory;

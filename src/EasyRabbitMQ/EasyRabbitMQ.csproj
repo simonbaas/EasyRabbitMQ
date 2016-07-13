@@ -53,12 +53,15 @@
     <Compile Include="Constants\Queues.cs" />
     <Compile Include="Extensions\HeadersExtensions.cs" />
     <Compile Include="Infrastructure\BuiltInHandlerActivator.cs" />
+    <Compile Include="Infrastructure\ComponentRegistration.cs" />
     <Compile Include="Infrastructure\ExchangeType.cs" />
+    <Compile Include="Infrastructure\IContainer.cs" />
     <Compile Include="Infrastructure\IHandleMessages.cs" />
     <Compile Include="Infrastructure\IHandlerActivator.cs" />
     <Compile Include="Infrastructure\ITransactionContext.cs" />
     <Compile Include="Infrastructure\Message.cs" />
     <Compile Include="Infrastructure\MessageFactory.cs" />
+    <Compile Include="Infrastructure\SuperSimpleIoC.cs" />
     <Compile Include="Logging\AbstractLoggerFactory.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />

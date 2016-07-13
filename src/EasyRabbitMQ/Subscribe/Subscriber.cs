@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using EasyRabbitMQ.Configuration;
 using EasyRabbitMQ.Infrastructure;
 
 namespace EasyRabbitMQ.Subscribe
@@ -13,10 +12,9 @@ namespace EasyRabbitMQ.Subscribe
         private readonly object _startLock = new object();
         private bool _isStarted;
 
-        internal Subscriber(EasyRabbitMQConfigurer configurer)
+        public Subscriber(ISubscriptionFactory subscriptionFactory)
         {
-            _subscriptionFactory = new SubscriptionFactory(configurer.ChannelFactory, configurer.Serializer, configurer.HandlerActivator, 
-                configurer.MessageRetryHandlerFactory);
+            _subscriptionFactory = subscriptionFactory;
         }
 
         public ISubscription<TMessage> Queue<TMessage>(string queue) where TMessage : class

@@ -2,7 +2,6 @@
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Publish;
-using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
 using EasyRabbitMQ.Subscribe;
 
@@ -10,22 +9,20 @@ namespace EasyRabbitMQ.Configuration
 {
     public class EasyRabbitMQConfigurer
     {
-        internal IChannelFactory ChannelFactory { get; }
-        internal IMessageRetryHandlerFactory MessageRetryHandlerFactory { get; private set; }
-        internal ISerializer Serializer { get; private set; } = new DefaultJsonSerializer();
-        internal IHandlerActivator HandlerActivator { get; private set; } = new BuiltInHandlerActivator();
+        private readonly IContainer _container =  new SuperSimpleIoC();
 
         internal EasyRabbitMQConfigurer(string connectionString)
         {
-            ChannelFactory = new ChannelFactory(new ConnectionFactory(connectionString));
-            MessageRetryHandlerFactory = new MessageRetryHandlerFactory(ChannelFactory);
+            ComponentRegistration.Register(_container);
+
+            _container.Register<IConnectionFactory>(() => new ConnectionFactory(connectionString));
         }
 
         public EasyRabbitMQConfigurer Use(ISerializer serializer)
         {
             if (serializer == null) throw new ArgumentNullException(nameof(serializer));
 
-            Serializer = serializer;
+            _container.Register(() => serializer);
 
             return this;
         }
@@ -34,7 +31,7 @@ namespace EasyRabbitMQ.Configuration
         {
             if (handlerActivator == null) throw new ArgumentNullException(nameof(handlerActivator));
 
-            HandlerActivator = handlerActivator;
+            _container.Register(() => handlerActivator);
 
             return this;
         }
@@ -50,12 +47,12 @@ namespace EasyRabbitMQ.Configuration
 
         public IPublisher AsPublisher()
         {
-            return new Publisher(this);
+            return _container.Resolve<IPublisher>();
         }
 
         public ISubscriber AsSubscriber()
         {
-            return new Subscriber(this);
+            return _container.Resolve<ISubscriber>();
         }
     }
 }
