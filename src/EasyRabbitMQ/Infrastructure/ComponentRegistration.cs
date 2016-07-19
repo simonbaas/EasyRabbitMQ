@@ -1,4 +1,5 @@
 ﻿using EasyRabbitMQ.Configuration;
+using EasyRabbitMQ.Events;
 using EasyRabbitMQ.Publish;
 using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
@@ -13,6 +14,7 @@ namespace EasyRabbitMQ.Infrastructure
             container.Register<IConfiguration, Configuration.Configuration>();
             container.Register<IConnectionFactory, ConnectionFactory>();
             container.Register<IChannelFactory, ChannelFactory>();
+            container.Register<IEventBus, EventBus>();
             container.Register<ISerializer, DefaultJsonSerializer>();
             container.Register<IMessageRetryHandlerFactory, MessageRetryHandlerFactory>();
             container.Register<IHandlerActivator, BuiltInHandlerActivator>();
