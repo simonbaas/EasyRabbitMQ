@@ -1,21 +1,22 @@
-﻿using RabbitMQ.Client;
+﻿using EasyRabbitMQ.Configuration;
+using RabbitMQ.Client;
 
 namespace EasyRabbitMQ.Infrastructure
 {
     internal class ConnectionFactory : IConnectionFactory
     {
-        private readonly string _connectionString;
+        private readonly IConfiguration _configuration;
 
-        internal ConnectionFactory(string connectionString)
+        public ConnectionFactory(IConfiguration configuration)
         {
-            _connectionString = connectionString;
+            _configuration = configuration;
         }
 
         public IConnection CreateConnection()
         {
             var factory = new RabbitMQ.Client.ConnectionFactory
             {
-                Uri = _connectionString,
+                Uri = _configuration.ConnectionString,
                 AutomaticRecoveryEnabled = true
             };
 

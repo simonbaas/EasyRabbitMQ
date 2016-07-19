@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\IConfiguration.cs" />
     <Compile Include="Constants\Exchanges.cs" />
     <Compile Include="Constants\Headers.cs" />
     <Compile Include="Constants\Queues.cs" />

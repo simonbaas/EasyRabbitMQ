@@ -13,9 +13,11 @@ namespace EasyRabbitMQ.Configuration
 
         internal EasyRabbitMQConfigurer(string connectionString)
         {
+            if (string.IsNullOrEmpty(connectionString)) throw new ArgumentNullException(nameof(connectionString));
+
             ComponentRegistration.Register(_container);
 
-            _container.Register<IConnectionFactory>(() => new ConnectionFactory(connectionString));
+            _container.Resolve<IConfiguration>().ConnectionString = connectionString;
         }
 
         public EasyRabbitMQConfigurer Use(ISerializer serializer)

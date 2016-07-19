@@ -1,4 +1,5 @@
-﻿using EasyRabbitMQ.Publish;
+﻿using EasyRabbitMQ.Configuration;
+using EasyRabbitMQ.Publish;
 using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
 using EasyRabbitMQ.Subscribe;
@@ -9,6 +10,8 @@ namespace EasyRabbitMQ.Infrastructure
     {
         internal static void Register(IContainer container)
         {
+            container.Register<IConfiguration, Configuration.Configuration>();
+            container.Register<IConnectionFactory, ConnectionFactory>();
             container.Register<IChannelFactory, ChannelFactory>();
             container.Register<ISerializer, DefaultJsonSerializer>();
             container.Register<IMessageRetryHandlerFactory, MessageRetryHandlerFactory>();
