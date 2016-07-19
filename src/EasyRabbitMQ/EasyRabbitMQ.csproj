@@ -67,6 +67,10 @@
     <Compile Include="Logging\LogManager.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Logging\NullLoggerFactory.cs" />
+    <Compile Include="Publish\ChannelActionDispatcher.cs" />
+    <Compile Include="Publish\ChannelConnection.cs" />
+    <Compile Include="Publish\IChannelActionDispatcher.cs" />
+    <Compile Include="Publish\IChannelConnection.cs" />
     <Compile Include="Retry\IMessageRetryHandler.cs" />
     <Compile Include="Retry\IMessageRetryHandlerFactory.cs" />
     <Compile Include="Retry\MesageRetryConstants.cs" />

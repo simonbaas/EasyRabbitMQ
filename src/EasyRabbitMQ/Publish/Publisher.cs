@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Serialization;
 using RabbitMQ.Client;
@@ -11,12 +12,12 @@ namespace EasyRabbitMQ.Publish
     internal class Publisher : IPublisher
     {
         private readonly ISerializer _serializer;
-        private readonly Lazy<Channel> _channel;
+        private readonly IChannelActionDispatcher _channelAction;
 
-        public Publisher(ISerializer serializer, IChannelFactory channelFactory)
+        public Publisher(ISerializer serializer, IChannelActionDispatcher channelAction)
         {
             _serializer = serializer;
-            _channel = new Lazy<Channel>(channelFactory.CreateChannel);
+            _channelAction = channelAction;
         }
 
         public void PublishQueue<TMessage>(string queue, TMessage message, MessageProperties messageProperties = null)
@@ -24,7 +25,15 @@ namespace EasyRabbitMQ.Publish
             if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            PublishMessageInternal("", queue, messageProperties, message);
+            PublishMessageInternalAsync("", queue, messageProperties, message).Wait();
+        }
+
+        public Task PublishQueueAsync<TMessage>(string queue, TMessage message, MessageProperties messageProperties = null)
+        {
+            if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
+            return PublishMessageInternalAsync("", queue, messageProperties, message);
         }
 
         public void PublishExchange<TMessage>(string exchange, TMessage message, string routingKey = "", MessageProperties messageProperties = null)
@@ -33,21 +42,27 @@ namespace EasyRabbitMQ.Publish
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            PublishMessageInternal(exchange, routingKey, messageProperties, message);
+            PublishMessageInternalAsync(exchange, routingKey, messageProperties, message).Wait();
         }
 
-        private void PublishMessageInternal<TMessage>(string exchange, string routingKey, MessageProperties messageProperties, TMessage message)
+        public Task PublishExchangeAsync<TMessage>(string exchange, TMessage message, string routingKey = "", MessageProperties messageProperties = null)
         {
-            var body = _serializer.Serialize(message);
+            if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
+            if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
+            if (message == null) throw new ArgumentNullException(nameof(message));
 
-            var channel = _channel.Value.Instance;
+            return PublishMessageInternalAsync(exchange, routingKey, messageProperties, message);
+        }
 
-            lock (channel)
+        private async Task PublishMessageInternalAsync<TMessage>(string exchange, string routingKey, MessageProperties messageProperties, TMessage message)
+        {
+            await _channelAction.InvokeAsync(channel =>
             {
+                var body = _serializer.Serialize(message);
                 var props = CreateBasicProperties(channel, messageProperties);
 
                 channel.BasicPublish(exchange, routingKey, props, body);
-            }
+            }).ConfigureAwait(false);
         }
 
         private IBasicProperties CreateBasicProperties(IModel channel, MessageProperties messageProperties)
@@ -101,10 +116,7 @@ namespace EasyRabbitMQ.Publish
             {
                 if (disposing)
                 {
-                    if (_channel.IsValueCreated)
-                    {
-                        _channel.Value?.Dispose();
-                    }
+                    _channelAction.Dispose();
                 }
 
                 _disposedValue = true;
