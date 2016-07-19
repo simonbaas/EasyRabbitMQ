@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Autofac;
 using EasyRabbitMQ.Infrastructure;
 
@@ -19,15 +15,16 @@ namespace EasyRabbitMQ.Autofac
             _container = container;
         }
 
-        public IHandleMessages<TMessage> Get<TMessage>(ITransactionContext transactionContext) where TMessage : class 
+        public IHandleMessages<TMessage> Get<TMessage>() where TMessage : class 
         {
-            if (transactionContext == null) throw new ArgumentNullException(nameof(transactionContext));
-
-            var lifetimeScope = _container.BeginLifetimeScope();
-
-            transactionContext.OnDisposed(() => lifetimeScope.Dispose());
+            var lifetimeScope = _container.BeginLifetimeScope("autofac-handler-scope");
 
             return lifetimeScope.Resolve<IHandleMessages<TMessage>>();
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }

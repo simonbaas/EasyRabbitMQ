@@ -58,7 +58,6 @@
     <Compile Include="Infrastructure\IContainer.cs" />
     <Compile Include="Infrastructure\IHandleMessages.cs" />
     <Compile Include="Infrastructure\IHandlerActivator.cs" />
-    <Compile Include="Infrastructure\ITransactionContext.cs" />
     <Compile Include="Infrastructure\Message.cs" />
     <Compile Include="Infrastructure\MessageFactory.cs" />
     <Compile Include="Infrastructure\SuperSimpleIoC.cs" />

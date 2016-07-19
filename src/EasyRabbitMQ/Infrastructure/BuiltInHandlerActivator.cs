@@ -12,23 +12,38 @@ namespace EasyRabbitMQ.Infrastructure
             _types.AddOrUpdate(typeof (TMessage), _ => func(), (t, o) => func());
         }
 
-        public IHandleMessages<TMessage> Get<TMessage>(ITransactionContext transactionContext) where TMessage : class
+        public IHandleMessages<TMessage> Get<TMessage>() where TMessage : class
         {
-            if (transactionContext == null) throw new ArgumentNullException(nameof(transactionContext));
-
             dynamic handler;
             if (!_types.TryGetValue(typeof (TMessage), out handler))
             {
                 throw new InvalidOperationException($"No handler registered for type '{typeof(TMessage)}'. Use Register method to register handlers.");
             }
 
-            transactionContext.OnDisposed(() =>
-            {
-                var disposable = handler as IDisposable;
-                disposable?.Dispose();
-            });
-
             return handler;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _disposedValue;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach (var type in _types)
+                    {
+                        (type.Value as IDisposable)?.Dispose();
+                    }
+                }
+
+                _disposedValue = true;
+            }
         }
     }
 }

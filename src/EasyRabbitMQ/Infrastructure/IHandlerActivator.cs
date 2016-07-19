@@ -1,7 +1,9 @@
-﻿namespace EasyRabbitMQ.Infrastructure
+﻿using System;
+
+namespace EasyRabbitMQ.Infrastructure
 {
-    public interface IHandlerActivator
+    public interface IHandlerActivator : IDisposable
     {
-        IHandleMessages<TMessage> Get<TMessage>(ITransactionContext transactionContext) where TMessage : class;
+        IHandleMessages<TMessage> Get<TMessage>() where TMessage : class;
     }
 }

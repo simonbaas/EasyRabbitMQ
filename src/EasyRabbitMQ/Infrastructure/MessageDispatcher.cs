@@ -9,7 +9,6 @@ namespace EasyRabbitMQ.Infrastructure
         public event Func<Message<TMessage>, Task> Received;
 
         private readonly IHandlerActivator _activator;
-        private readonly ITransactionContext _transactionContext = new TransactionContext();
 
         internal MessageDispatcher(IHandlerActivator activator)
         {
@@ -23,7 +22,7 @@ namespace EasyRabbitMQ.Infrastructure
 
         public void AddHandler<THandler>() where THandler : IHandleMessages<TMessage>
         {
-            var handler = _activator.Get<TMessage>(_transactionContext);
+            var handler = _activator.Get<TMessage>();
 
             if (handler == null) throw new InvalidOperationException($"Could not resolve handler of type '{typeof(THandler)}'.");
 
@@ -64,7 +63,7 @@ namespace EasyRabbitMQ.Infrastructure
             {
                 if (disposing)
                 {
-                    _transactionContext?.Dispose();
+                    _activator.Dispose();
                 }
 
                 _disposedValue = true;
