@@ -20,8 +20,8 @@ namespace EasyRabbitMQ.Subscribe
         public ISubscription<TMessage> Queue<TMessage>(string queue) where TMessage : class
         {
             CheckStarted();
-
-            var subscription = _subscriptions.GetOrAdd(queue, _ => _subscriptionFactory.SubscribeQueue<TMessage>(queue)) as ISubscription<TMessage>;
+            var key = $"{queue}-{typeof (TMessage).FullName}";
+            var subscription = _subscriptions.GetOrAdd(key, _ => _subscriptionFactory.SubscribeQueue<TMessage>(queue)) as ISubscription<TMessage>;
 
             return subscription;
         }
@@ -31,7 +31,8 @@ namespace EasyRabbitMQ.Subscribe
         {
             CheckStarted();
 
-            var subscription = _subscriptions.GetOrAdd(queue, 
+            var key = $"{queue}-{exchange}-{typeof(TMessage).FullName}";
+            var subscription = _subscriptions.GetOrAdd(key, 
                 _ => _subscriptionFactory.SubscribeExchange<TMessage>(exchange, queue, routingKey, exchangeType)) as ISubscription<TMessage>;
 
             return subscription;
