@@ -40,13 +40,6 @@ namespace EasyRabbitMQ.Infrastructure
                         Instance.Dispose();
                         Instance = null;
                     }
-
-                    if (_connection != null)
-                    {
-                        _connection.Close();
-                        _connection.Dispose();
-                        _connection = null;
-                    }
                 }
 
                 _disposedValue = true;

@@ -212,6 +212,8 @@ namespace EasyRabbitMQ.Retry
                         _retryChannel.Value.Dispose();
                         _retryChannel = null;
                     }
+
+                    _channelFactory.Dispose();
                 }
 
                 _disposedValue = true;

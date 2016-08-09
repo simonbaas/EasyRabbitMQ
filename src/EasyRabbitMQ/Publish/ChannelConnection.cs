@@ -72,6 +72,8 @@ namespace EasyRabbitMQ.Publish
                 {
                     _channel?.Dispose();
                     _channel = null;
+
+                    _channelFactory.Dispose();
                 }
 
                 _disposedValue = true;

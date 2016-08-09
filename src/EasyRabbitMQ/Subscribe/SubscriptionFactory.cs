@@ -44,5 +44,25 @@ namespace EasyRabbitMQ.Subscribe
             return new ExchangeAsyncSubscription<TMessage>(channel, _serializer, messageDispatcher, messageRetryHandler,
                 exchange, queue, routingKey, exchangeType);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _disposedValue;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _channelFactory.Dispose();
+                }
+
+                _disposedValue = true;
+            }
+        }
     }
 }

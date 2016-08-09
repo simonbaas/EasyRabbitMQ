@@ -1,20 +1,42 @@
-﻿namespace EasyRabbitMQ.Infrastructure
+﻿using System;
+
+namespace EasyRabbitMQ.Infrastructure
 {
     internal class ChannelFactory : IChannelFactory
     {
-        private readonly IConnectionFactory _connectionFactory;
+        private readonly ISharedConnection _sharedConnection;
 
-        public ChannelFactory(IConnectionFactory connectionFactory)
+        public ChannelFactory(ISharedConnection sharedConnection)
         {
-            _connectionFactory = connectionFactory;
+            _sharedConnection = sharedConnection;
         }
 
         public Channel CreateChannel()
         {
-            var connection = _connectionFactory.CreateConnection();
+            var connection = _sharedConnection.Connection;
             var channel = connection.CreateModel();
 
             return new Channel(connection, channel);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _disposedValue;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _sharedConnection.Dispose();
+                }
+
+                _disposedValue = true;
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ namespace EasyRabbitMQ.Infrastructure
         {
             container.Register<IConfiguration, Configuration.Configuration>();
             container.Register<IConnectionFactory, ConnectionFactory>();
+            container.Register<ISharedConnection, SharedConnection>();
             container.Register<IChannelFactory, ChannelFactory>();
             container.Register<IEventBus, EventBus>();
             container.Register<ISerializer, DefaultJsonSerializer>();

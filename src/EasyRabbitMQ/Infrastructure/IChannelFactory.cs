@@ -1,6 +1,8 @@
-﻿namespace EasyRabbitMQ.Infrastructure
+﻿using System;
+
+namespace EasyRabbitMQ.Infrastructure
 {
-    internal interface IChannelFactory
+    internal interface IChannelFactory : IDisposable
     {
         Channel CreateChannel();
     }

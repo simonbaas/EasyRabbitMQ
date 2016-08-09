@@ -99,6 +99,8 @@ namespace EasyRabbitMQ.Subscribe
 
                         _subscriptions.Clear();
                     }
+
+                    _subscriptionFactory.Dispose();
                 }
 
                 _disposedValue = true;

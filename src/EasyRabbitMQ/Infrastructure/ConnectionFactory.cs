@@ -20,7 +20,9 @@ namespace EasyRabbitMQ.Infrastructure
                 AutomaticRecoveryEnabled = true
             };
 
-            return factory.CreateConnection();
+            var connection = factory.CreateConnection();
+
+            return connection;
         }
     }
 }
