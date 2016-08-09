@@ -18,13 +18,13 @@ namespace EasyRabbitMQ.Retry
         private int _maxNumberOfRetries;
         private string _failureQueue;
         private EventingBasicConsumer _consumer;
-        private Lazy<Channel> _retryChannel;
+        private Lazy<IModel> _retryChannel;
         private readonly ILogger _logger = LogManager.GetLogger(typeof(MessageRetryHandler));
 
         internal MessageRetryHandler(IChannelFactory channelFactory)
         {
             _channelFactory = channelFactory;
-            _retryChannel = new Lazy<Channel>(() => _channelFactory.CreateChannel());
+            _retryChannel = new Lazy<IModel>(() => _channelFactory.CreateChannel());
         }
 
         public void SetMaxNumberOfRetries(int maxNumberOfRetries)
@@ -71,7 +71,7 @@ namespace EasyRabbitMQ.Retry
 
             using (var channel = _channelFactory.CreateChannel())
             {
-                channel.Instance.QueueDeclare(
+                channel.QueueDeclare(
                     queue: failureQueue,
                     durable: true,
                     exclusive: false,
@@ -109,7 +109,7 @@ namespace EasyRabbitMQ.Retry
         {
             using (var channel = _channelFactory.CreateChannel())
             {
-                channel.Instance.BasicPublish("", queueName, basicProperties, body);
+                channel.BasicPublish("", queueName, basicProperties, body);
             }
         }
 
@@ -123,10 +123,10 @@ namespace EasyRabbitMQ.Retry
 
             channel.EnableFairDispatch();
 
-            _consumer = new EventingBasicConsumer(channel.Instance);
+            _consumer = new EventingBasicConsumer(channel);
             _consumer.Received += ConsumerOnReceived;
 
-            channel.Instance.BasicConsume(
+            channel.BasicConsume(
                 queue: Queues.Retry,
                 noAck: false,
                 consumer: _consumer);
@@ -136,24 +136,24 @@ namespace EasyRabbitMQ.Retry
         {
             using (var channel = _channelFactory.CreateChannel())
             {
-                channel.Instance.ExchangeDeclare(
+                channel.ExchangeDeclare(
                     exchange: Exchanges.Retry,
                     type: ExchangeType.Direct,
                     durable: true);
 
-                channel.Instance.QueueDeclare(
+                channel.QueueDeclare(
                     queue: Queues.Retry,
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
                     arguments: null);
 
-                channel.Instance.QueueBind(
+                channel.QueueBind(
                     queue: Queues.Retry,
                     exchange: Exchanges.Retry,
                     routingKey: RetryRoutingKey);
 
-                channel.Instance.QueueDeclare(
+                channel.QueueDeclare(
                     queue: Queues.Delayed,
                     durable: true,
                     exclusive: false,
@@ -174,15 +174,15 @@ namespace EasyRabbitMQ.Retry
                 var exchange = ea.BasicProperties.Headers.GetString(Headers.Exchange);
                 var routingKey = ea.BasicProperties.Headers.GetString(Headers.RoutingKey);
 
-                _retryChannel.Value.Instance.BasicPublish(exchange, routingKey, ea.BasicProperties, ea.Body);
+                _retryChannel.Value.BasicPublish(exchange, routingKey, ea.BasicProperties, ea.Body);
 
-                _retryChannel.Value.Instance.BasicAck(ea.DeliveryTag, false);
+                _retryChannel.Value.BasicAck(ea.DeliveryTag, false);
             }
             catch (Exception ex)
             {
                 _logger.Error($"Failed to requeue message for retry. Trying to send message to fail queue '{_failureQueue}'.", ex);
 
-                _retryChannel.Value.Instance.BasicNack(ea.DeliveryTag, false, false);
+                _retryChannel.Value.BasicNack(ea.DeliveryTag, false, false);
 
                 SendToFailureQueue(ea);
             }

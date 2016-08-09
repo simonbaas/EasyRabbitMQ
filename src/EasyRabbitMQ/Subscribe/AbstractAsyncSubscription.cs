@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Threading.Tasks;
+using EasyRabbitMQ.Extensions;
 using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Logging;
 using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace EasyRabbitMQ.Subscribe
 {
     internal abstract class AbstractAsyncSubscription<TMessage> : ISubscription<TMessage>, IStartable
     {
-        protected Channel Channel { get; }
+        protected IModel Channel { get; }
 
         private readonly ISerializer _serializer;
         private readonly IMessageDispatcher<TMessage> _messageDispatcher; 
@@ -18,7 +20,7 @@ namespace EasyRabbitMQ.Subscribe
         private readonly ILogger _logger = LogManager.GetLogger(typeof (AbstractAsyncSubscription<>));
         private EventingBasicConsumer _consumer;
 
-        protected internal AbstractAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
+        protected internal AbstractAsyncSubscription(IModel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
             IMessageRetryHandler messageRetryHandler)
         {
             Channel = channel;
@@ -64,18 +66,17 @@ namespace EasyRabbitMQ.Subscribe
 
         public void Start()
         {
-            var channel = Channel.Instance;
             var queueName = GetQueueName();
 
-            if (channel == null) throw new InvalidOperationException("channel is invalid");
+            if (Channel == null) throw new InvalidOperationException("channel is invalid");
             if (string.IsNullOrWhiteSpace(queueName)) throw new InvalidOperationException("queueName is invalid");
 
             _messageRetryHandler.Start();
 
-            _consumer = new EventingBasicConsumer(channel);
+            _consumer = new EventingBasicConsumer(Channel);
             _consumer.Received += ConsumerOnReceived;
 
-            channel.BasicConsume(
+            Channel.BasicConsume(
                 queue: queueName,
                 noAck: false,
                 consumer: _consumer);

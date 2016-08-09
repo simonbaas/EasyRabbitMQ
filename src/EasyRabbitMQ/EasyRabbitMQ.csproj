@@ -59,6 +59,7 @@
     <Compile Include="Events\EventBus.cs" />
     <Compile Include="Events\IEventBus.cs" />
     <Compile Include="Extensions\HeadersExtensions.cs" />
+    <Compile Include="Extensions\IModelExtensions.cs" />
     <Compile Include="Infrastructure\BuiltInHandlerActivator.cs" />
     <Compile Include="Infrastructure\ComponentRegistration.cs" />
     <Compile Include="Infrastructure\ExchangeType.cs" />
@@ -89,7 +90,6 @@
     <Compile Include="Configuration\EasyRabbitMQConfigure.cs" />
     <Compile Include="Configuration\EasyRabbitMQConfigurer.cs" />
     <Compile Include="Infrastructure\ChannelFactory.cs" />
-    <Compile Include="Infrastructure\Channel.cs" />
     <Compile Include="Infrastructure\ConnectionFactory.cs" />
     <Compile Include="Infrastructure\DisposableAction.cs" />
     <Compile Include="Infrastructure\IChannelFactory.cs" />

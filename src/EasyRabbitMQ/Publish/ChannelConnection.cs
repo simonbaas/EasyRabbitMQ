@@ -7,7 +7,7 @@ namespace EasyRabbitMQ.Publish
     internal class ChannelConnection : IChannelConnection
     {
         private readonly IChannelFactory _channelFactory;
-        private Channel _channel;
+        private IModel _channel;
         private readonly object _lockObject = new object();
 
         public ChannelConnection(IChannelFactory channelFactory)
@@ -23,7 +23,7 @@ namespace EasyRabbitMQ.Publish
             {
                 var channel = GetChannel();
 
-                action(channel.Instance);
+                action(channel);
             }
             catch
             {
@@ -33,7 +33,7 @@ namespace EasyRabbitMQ.Publish
             }
         }
 
-        private Channel GetChannel()
+        private IModel GetChannel()
         {
             lock (_lockObject)
             {

@@ -1,6 +1,8 @@
 ﻿using EasyRabbitMQ.Infrastructure;
 using EasyRabbitMQ.Retry;
 using EasyRabbitMQ.Serialization;
+using RabbitMQ.Client;
+using ExchangeType = EasyRabbitMQ.Infrastructure.ExchangeType;
 
 namespace EasyRabbitMQ.Subscribe
 {
@@ -8,7 +10,7 @@ namespace EasyRabbitMQ.Subscribe
     {
         private string _queueName;
 
-        protected internal ExchangeAsyncSubscription(Channel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
+        protected internal ExchangeAsyncSubscription(IModel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
             IMessageRetryHandler messageRetryHandler, string exchange, string queueName, string routingKey, ExchangeType exchangeType) 
             : base(channel, serializer, messageDispatcher, messageRetryHandler)
         {
@@ -17,9 +19,7 @@ namespace EasyRabbitMQ.Subscribe
 
         private void Initialize(string exchange, string queueName, string routingKey, ExchangeType exchangeType)
         {
-            var channel = Channel.Instance;
-
-            channel.ExchangeDeclare(
+            Channel.ExchangeDeclare(
                 exchange: exchange,
                 type: exchangeType.GetRabbitMQExchangeType(),
                 durable: true,
@@ -30,7 +30,7 @@ namespace EasyRabbitMQ.Subscribe
             var queueAutoDelete = queueExclusive;
             var queueDurable = !queueAutoDelete;
 
-            var queueOk = channel.QueueDeclare(
+            var queueOk = Channel.QueueDeclare(
                 queue: queueName,
                 durable: queueDurable,
                 exclusive: queueExclusive,
@@ -39,7 +39,7 @@ namespace EasyRabbitMQ.Subscribe
 
             queueName = queueOk.QueueName;
 
-            channel.QueueBind(
+            Channel.QueueBind(
                 queue: queueName,
                 exchange: exchange,
                 routingKey: routingKey);

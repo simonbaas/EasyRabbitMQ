@@ -1,4 +1,5 @@
 ﻿using System;
+using RabbitMQ.Client;
 
 namespace EasyRabbitMQ.Infrastructure
 {
@@ -11,12 +12,12 @@ namespace EasyRabbitMQ.Infrastructure
             _sharedConnection = sharedConnection;
         }
 
-        public Channel CreateChannel()
+        public IModel CreateChannel()
         {
             var connection = _sharedConnection.Connection;
             var channel = connection.CreateModel();
 
-            return new Channel(connection, channel);
+            return channel;
         }
 
         public void Dispose()
