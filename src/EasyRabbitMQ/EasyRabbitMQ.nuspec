@@ -13,7 +13,8 @@
     <copyright>Copyright Simon Baas 2016</copyright>
     <tags>easyrabbitmq rabbitmq messaging queue</tags>
 	<dependencies>
-      <dependency id="Newtonsoft.Json" version="7.0.1" />
+      <dependency id="Newtonsoft.Json" version="9.0.1" />
+      <dependency id="RabbitMQ.Client" version="4.1.0" />
     </dependencies>
   </metadata>
 </package>

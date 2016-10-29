@@ -13,7 +13,7 @@
     <copyright>Copyright Simon Baas 2016</copyright>
     <tags>easyrabbitmq log4net rabbitmq messaging queue</tags>
     <dependencies>
-      <dependency id="EasyRabbitMQ" version="1.0.0" />
+      <dependency id="EasyRabbitMQ" version="2.0.0" />
       <dependency id="log4net" version="2.0.3" />
     </dependencies>
   </metadata>

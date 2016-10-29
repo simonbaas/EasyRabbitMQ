@@ -17,9 +17,7 @@ namespace EasyRabbitMQ.Ninject
 
         public IHandleMessages<TMessage> Get<TMessage>() where TMessage : class
         {
-            var block = _kernel.BeginBlock();
-
-            return block.Get<IHandleMessages<TMessage>>();
+            return _kernel.Get<IHandleMessages<TMessage>>();
         }
 
         public void Dispose()
