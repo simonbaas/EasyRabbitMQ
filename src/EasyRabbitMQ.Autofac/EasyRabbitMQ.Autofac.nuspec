@@ -13,7 +13,7 @@
     <copyright>Copyright Simon Baas 2016</copyright>
     <tags>easyrabbitmq autofac rabbitmq messaging queue</tags>
     <dependencies>
-      <dependency id="EasyRabbitMQ" version="1.0.0" />
+      <dependency id="EasyRabbitMQ" version="1.0.2" />
       <dependency id="Autofac" version="3.5.2" />
     </dependencies>
   </metadata>

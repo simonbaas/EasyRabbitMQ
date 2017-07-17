@@ -13,7 +13,7 @@
     <copyright>Copyright Simon Baas 2016</copyright>
     <tags>easyrabbitmq ninject rabbitmq messaging queue</tags>
     <dependencies>
-      <dependency id="EasyRabbitMQ" version="1.0.0" />
+      <dependency id="EasyRabbitMQ" version="1.0.2" />
       <dependency id="Ninject" version="3.2.2.0" />
     </dependencies>
   </metadata>
