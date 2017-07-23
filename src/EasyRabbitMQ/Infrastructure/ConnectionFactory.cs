@@ -6,6 +6,7 @@ namespace EasyRabbitMQ.Infrastructure
     internal class ConnectionFactory : IConnectionFactory
     {
         private readonly IConfiguration _configuration;
+        private const string ClientProvidedName = "EasyRabbitMQ";
 
         public ConnectionFactory(IConfiguration configuration)
         {
@@ -20,7 +21,7 @@ namespace EasyRabbitMQ.Infrastructure
                 AutomaticRecoveryEnabled = true
             };
 
-            var connection = factory.CreateConnection();
+            var connection = factory.CreateConnection(ClientProvidedName);
 
             return connection;
         }
