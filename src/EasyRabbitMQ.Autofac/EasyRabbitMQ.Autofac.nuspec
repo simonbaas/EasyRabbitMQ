@@ -12,5 +12,12 @@
     <description>A library to provide an easy api when working with RabbitMQ on .NET</description>
     <copyright>Copyright Simon Baas 2017</copyright>
     <tags>easyrabbitmq autofac rabbitmq messaging queue</tags>
+    <dependencies>
+      <dependency id="EasyRabbitMQ" version="$version$" />
+      <dependency id="Autofac" version="3.5.2" />
+    </dependencies>
   </metadata>
+  <files>
+      <file src="bin\Release\EasyRabbitMQ.Autofac.dll" target="lib/net46" />
+  </files>
 </package>

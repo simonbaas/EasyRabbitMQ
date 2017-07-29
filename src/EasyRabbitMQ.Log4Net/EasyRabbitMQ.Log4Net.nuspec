@@ -12,5 +12,12 @@
     <description>A library to provide an easy api when working with RabbitMQ on .NET</description>
     <copyright>Copyright Simon Baas 2017</copyright>
     <tags>easyrabbitmq log4net rabbitmq messaging queue</tags>
+    <dependencies>
+      <dependency id="EasyRabbitMQ" version="$version$" />
+      <dependency id="log4net" version="2.0.3" />
+    </dependencies>
   </metadata>
+  <files>
+      <file src="bin\Release\EasyRabbitMQ.Log4Net.dll" target="lib/net46" />
+  </files>
 </package>
