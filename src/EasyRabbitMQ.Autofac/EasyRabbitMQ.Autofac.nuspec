@@ -10,11 +10,7 @@
     <projectUrl>https://github.com/simonbaas/EasyRabbitMQ</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A library to provide an easy api when working with RabbitMQ on .NET</description>
-    <copyright>Copyright Simon Baas 2016</copyright>
+    <copyright>Copyright Simon Baas 2017</copyright>
     <tags>easyrabbitmq autofac rabbitmq messaging queue</tags>
-    <dependencies>
-      <dependency id="EasyRabbitMQ" version="1.0.2" />
-      <dependency id="Autofac" version="3.5.2" />
-    </dependencies>
   </metadata>
 </package>
