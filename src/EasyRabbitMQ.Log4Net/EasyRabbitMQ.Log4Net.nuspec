@@ -19,5 +19,6 @@
   </metadata>
   <files>
       <file src="bin\Release\EasyRabbitMQ.Log4Net.dll" target="lib/net46" />
+      <file src="bin\Release\EasyRabbitMQ.Log4Net.pdb" target="lib/net46" />
   </files>
 </package>

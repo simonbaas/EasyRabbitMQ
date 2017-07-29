@@ -19,5 +19,6 @@
   </metadata>
   <files>
       <file src="bin\Release\EasyRabbitMQ.dll" target="lib/net46" />
+      <file src="bin\Release\EasyRabbitMQ.pdb" target="lib/net46" />
   </files>
 </package>
