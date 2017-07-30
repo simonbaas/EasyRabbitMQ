@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version=`git describe --tags --long --match ?.?.?`
-branch=`git branch | grep \* | cut -d ' ' -f2`
+version=`git describe --tags --long --match ?.?.?` 
+branch=`echo %build.branch.name% | rev | cut -d/ -f1 | rev`
 buildCounter=%build.counter%
 
 if [[ $version =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)-([a-z0-9]+)$ ]]
