@@ -19,7 +19,9 @@ namespace EasyRabbitMQ.Subscribe
 
         public ISubscription<TMessage> Queue<TMessage>(string queue) where TMessage : class
         {
+            CheckDisposed();
             CheckStarted();
+
             var key = $"{queue}-{typeof (TMessage).FullName}";
             var subscription = _subscriptions.GetOrAdd(key, _ => _subscriptionFactory.SubscribeQueue<TMessage>(queue)) as ISubscription<TMessage>;
 
@@ -29,10 +31,11 @@ namespace EasyRabbitMQ.Subscribe
         public ISubscription<TMessage> Exchange<TMessage>(string exchange, string queue = "", string routingKey = "",
             ExchangeType exchangeType = ExchangeType.Topic) where TMessage : class
         {
+            CheckDisposed();
             CheckStarted();
 
             var key = $"{queue}-{exchange}-{typeof(TMessage).FullName}";
-            var subscription = _subscriptions.GetOrAdd(key, 
+            var subscription = _subscriptions.GetOrAdd(key,
                 _ => _subscriptionFactory.SubscribeExchange<TMessage>(exchange, queue, routingKey, exchangeType)) as ISubscription<TMessage>;
 
             return subscription;
@@ -51,6 +54,8 @@ namespace EasyRabbitMQ.Subscribe
 
         public void Start()
         {
+            CheckDisposed();
+
             lock (_startLock)
             {
                 if (_isStarted) return;
@@ -74,6 +79,14 @@ namespace EasyRabbitMQ.Subscribe
             lock (_startLock)
             {
                 if (_isStarted) throw new InvalidOperationException("Subscriber is already started!");
+            }
+        }
+
+        private void CheckDisposed()
+        {
+            if (_disposedValue)
+            {
+                throw new ObjectDisposedException(nameof(Subscriber));
             }
         }
 

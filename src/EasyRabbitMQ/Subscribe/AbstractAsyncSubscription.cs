@@ -15,12 +15,12 @@ namespace EasyRabbitMQ.Subscribe
         protected IModel Channel { get; }
 
         private readonly ISerializer _serializer;
-        private readonly IMessageDispatcher<TMessage> _messageDispatcher; 
+        private readonly IMessageDispatcher<TMessage> _messageDispatcher;
         private readonly IMessageRetryHandler _messageRetryHandler;
         private readonly ILogger _logger = LogManager.GetLogger(typeof (AbstractAsyncSubscription<>));
         private EventingBasicConsumer _consumer;
 
-        protected internal AbstractAsyncSubscription(IModel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher, 
+        protected internal AbstractAsyncSubscription(IModel channel, ISerializer serializer, IMessageDispatcher<TMessage> messageDispatcher,
             IMessageRetryHandler messageRetryHandler)
         {
             Channel = channel;
