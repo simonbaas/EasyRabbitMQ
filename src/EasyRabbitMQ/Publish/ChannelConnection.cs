@@ -52,7 +52,7 @@ namespace EasyRabbitMQ.Publish
         {
             lock (_lockObject)
             {
-                _channel.Dispose();
+                _channel?.Dispose();
                 _channel = null;
             }
         }
