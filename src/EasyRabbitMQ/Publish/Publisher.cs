@@ -22,6 +22,8 @@ namespace EasyRabbitMQ.Publish
 
         public void PublishQueue<TMessage>(string queue, TMessage message, MessageProperties messageProperties = null)
         {
+            CheckDisposed();
+
             if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
             if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -30,6 +32,8 @@ namespace EasyRabbitMQ.Publish
 
         public Task PublishQueueAsync<TMessage>(string queue, TMessage message, MessageProperties messageProperties = null)
         {
+            CheckDisposed();
+
             if (string.IsNullOrWhiteSpace(queue)) throw new ArgumentNullException(nameof(queue));
             if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -38,6 +42,8 @@ namespace EasyRabbitMQ.Publish
 
         public void PublishExchange<TMessage>(string exchange, TMessage message, string routingKey = "", MessageProperties messageProperties = null)
         {
+            CheckDisposed();
+
             if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
             if (message == null) throw new ArgumentNullException(nameof(message));
@@ -47,6 +53,8 @@ namespace EasyRabbitMQ.Publish
 
         public Task PublishExchangeAsync<TMessage>(string exchange, TMessage message, string routingKey = "", MessageProperties messageProperties = null)
         {
+            CheckDisposed();
+
             if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentNullException(nameof(exchange));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
             if (message == null) throw new ArgumentNullException(nameof(message));
@@ -101,6 +109,14 @@ namespace EasyRabbitMQ.Publish
             if (basicProperties.Headers == null) basicProperties.Headers = new Dictionary<string, object>();
             basicProperties.Headers.Add(Headers.MessageId, Guid.NewGuid().ToString());
             basicProperties.Headers.Add(Headers.CorrelationId, Guid.NewGuid().ToString());
+        }
+
+        private void CheckDisposed()
+        {
+            if (_disposedValue)
+            {
+                throw new ObjectDisposedException(nameof(Publisher));
+            }
         }
 
         public void Dispose()
