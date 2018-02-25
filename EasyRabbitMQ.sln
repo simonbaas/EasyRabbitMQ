@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D2B669E1-3FF9-4176-9D28-1EB42CA0F3F0}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EasyRabbitMQ", "src\EasyRabbitMQ\EasyRabbitMQ.xproj", "{6BA0C82C-A487-469E-9802-91112698195B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyRabbitMQ", "src\EasyRabbitMQ\EasyRabbitMQ.csproj", "{6BA0C82C-A487-469E-9802-91112698195B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EasyRabbitMQ.Autofac", "src\EasyRabbitMQ.Autofac\EasyRabbitMQ.Autofac.xproj", "{27363D29-B3AC-4CD4-A5AB-253A15406A96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyRabbitMQ.Autofac", "src\EasyRabbitMQ.Autofac\EasyRabbitMQ.Autofac.csproj", "{27363D29-B3AC-4CD4-A5AB-253A15406A96}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EasyRabbitMQ.Log4Net", "src\EasyRabbitMQ.Log4Net\EasyRabbitMQ.Log4Net.xproj", "{AA8F6778-BE0E-40B9-881E-186C6DA33408}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyRabbitMQ.Log4Net", "src\EasyRabbitMQ.Log4Net\EasyRabbitMQ.Log4Net.csproj", "{AA8F6778-BE0E-40B9-881E-186C6DA33408}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EasyRabbitMQ.Ninject", "src\EasyRabbitMQ.Ninject\EasyRabbitMQ.Ninject.xproj", "{D7BA73A1-3A37-45D5-B6CD-1EA71BBDB87E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyRabbitMQ.Ninject", "src\EasyRabbitMQ.Ninject\EasyRabbitMQ.Ninject.csproj", "{D7BA73A1-3A37-45D5-B6CD-1EA71BBDB87E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,5 +44,8 @@ Global
 		{27363D29-B3AC-4CD4-A5AB-253A15406A96} = {D2B669E1-3FF9-4176-9D28-1EB42CA0F3F0}
 		{AA8F6778-BE0E-40B9-881E-186C6DA33408} = {D2B669E1-3FF9-4176-9D28-1EB42CA0F3F0}
 		{D7BA73A1-3A37-45D5-B6CD-1EA71BBDB87E} = {D2B669E1-3FF9-4176-9D28-1EB42CA0F3F0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3B6E131-9383-4815-AD23-340A2B9C77E6}
 	EndGlobalSection
 EndGlobal
