@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using EasyRabbitMQ.Logging;
@@ -9,58 +8,34 @@ namespace EasyRabbitMQ.Publish
 {
     internal class ChannelActionDispatcher : IChannelActionDispatcher
     {
-        private const int QueueSize = 1;
-
         private readonly IChannelConnection _channelConnection;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly BlockingCollection<Action> _actions = new BlockingCollection<Action>(QueueSize);
-        private readonly Task _dispatcherTask;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
         private readonly ILogger _logger = LogManager.GetLogger(typeof(ChannelActionDispatcher));
 
         public ChannelActionDispatcher(IChannelConnection channelConnection)
         {
             _channelConnection = channelConnection;
-
-            _dispatcherTask = StartDispatcherTask();
         }
 
-        public Task InvokeAsync(Action<IModel> action)
+        public async Task InvokeAsync(Action<IModel> action)
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            var tcs = new TaskCompletionSource<bool>();
-
             try
             {
-                _actions.Add(() =>
-                {
-                    try
-                    {
-                        if (_cts.IsCancellationRequested)
-                        {
-                            tcs.SetCanceled();
-                            return;
-                        }
+                await _semaphore.WaitAsync(_cts.Token).ConfigureAwait(false);
 
-                        _channelConnection.InvokeActionOnChannel(action);
-
-                        tcs.SetResult(true);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error("An exception was thrown when invoking action on channel", ex);
-
-                        tcs.SetException(ex);
-                    }
-                }, _cts.Token);
+                await Task
+                    .Run(() => InvokeChannelAction(action), _cts.Token)
+                    .ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) { }
+            finally
             {
-                tcs.SetCanceled();
+                _semaphore.Release();
             }
-
-            return tcs.Task;
         }
 
         public void Invoke(Action<IModel> action)
@@ -70,30 +45,20 @@ namespace EasyRabbitMQ.Publish
             InvokeAsync(action).Wait();
         }
 
-        private Task StartDispatcherTask()
+        private void InvokeChannelAction(Action<IModel> action)
         {
-            var task = Task.Run(() =>
+            try
             {
-                while (!_cts.IsCancellationRequested)
-                {
-                    try
-                    {
-                        var action = _actions.Take(_cts.Token);
+                if (_cts.IsCancellationRequested) return;
 
-                        action();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        _logger.Debug("ChannelActionDispatcher task cancelled");
+                _channelConnection.InvokeActionOnChannel(action);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("An exception was thrown when invoking action on channel", ex);
 
-                        break;
-                    }
-                }
-            }, _cts.Token);
-
-            _logger.Debug("ChannelActionDispatcher task started");
-
-            return task;
+                throw;
+            }
         }
 
         public void Dispose()
@@ -110,7 +75,6 @@ namespace EasyRabbitMQ.Publish
                 if (disposing)
                 {
                     _cts.Cancel();
-                    _dispatcherTask.Wait();
                     _channelConnection.Dispose();
                 }
 
